@@ -1,0 +1,15 @@
+// Auto-generated wrapper for snippet /* SNIPPET_ID */ from /* SNIPPET_SOURCE */.
+// Compiled with -std=c++20 -fno-exceptions -fno-rtti -Wall -Wextra -Werror.
+// If your snippet relies on EASTL or project headers, declare the necessary
+// `#include`s INSIDE the snippet body (the wrapper is intentionally minimal).
+
+#include <cstddef>
+#include <cstdint>
+
+namespace snippet_/* SNIPPET_ID */ {
+
+/* SNIPPET_BODY */
+
+}  // namespace snippet_/* SNIPPET_ID */
+
+int main() { return 0; }

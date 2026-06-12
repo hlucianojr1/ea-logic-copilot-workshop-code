@@ -1,0 +1,24 @@
+{
+  "name": "ea-copilot-workshop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Build system and source-of-truth for the Insight × EA GitHub Copilot workshop series (C++ game engineers).",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "lint": "npm run lint:md && npm run lint:format",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#output\" \"#third_party\"",
+    "lint:format": "prettier --check \"**/*.{md,yml,yaml,json,jsonc,mjs,js}\" --ignore-path .prettierignore",
+    "format": "prettier --write \"**/*.{md,yml,yaml,json,jsonc,mjs,js}\" --ignore-path .prettierignore",
+    "links": "lychee --no-progress --exclude-mail --exclude-path node_modules --exclude-path output \"**/*.md\"",
+    "validate:snippets": "node tools/extract-snippets.mjs",
+    "validate:prompts": "node tools/validate-prompts.mjs",
+    "scaffold:session": "node tools/new-session.mjs"
+  },
+  "devDependencies": {
+    "markdownlint-cli2": "^0.13.0",
+    "prettier": "^3.3.3"
+  }
+}

@@ -1,0 +1,8 @@
+node_modules/
+build/
+out/
+output/**
+!output/.gitkeep
+third_party/
+*.min.*
+CHANGELOG.md
