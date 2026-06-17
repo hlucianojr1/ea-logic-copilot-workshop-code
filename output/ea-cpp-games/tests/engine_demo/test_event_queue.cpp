@@ -1,5 +1,7 @@
 #include "engine_demo/sim/event_queue.h"
 
+#include <thread>
+
 #include "gtest/gtest.h"
 
 namespace {
@@ -66,39 +68,45 @@ TEST(EventSlot, ResetClearsSlot) {
 // m_ready == true BEFORE the payload writes are visible — reading partially-written or
 // stale payload data.
 //
-// On x86 (TSO), this test ALWAYS passes because the hardware provides implicit
-// store→store ordering. The test is DISABLED because it demonstrates a race that is
-// only reliably observable on ARM with TSAN or stress tools.
+// On x86 (TSO), the hardware provides implicit store→store ordering so the torn read
+// rarely manifests. The reliable reproduction is ThreadSanitizer, which flags the
+// data race on m_payload even when the torn read does not actually occur:
 //
-// To reproduce on ARM:
-//   1. Compile with -fsanitize=thread (TSAN)
-//   2. Run with TSAN — it flags the data race on m_payload.
+//   cmake --preset tsan && cmake --build --preset tsan
+//   ctest --preset tsan -R event_queue
 //
-// Expected (correct with release/acquire): consumer always reads complete payload.
-// Actual (buggy with relaxed): TSAN reports data race; on ARM hardware, payload may
-// be partially written when consumed.
+// The test is deliberately a SINGLE cross-thread handoff with no other synchronization.
+// Any extra sync (e.g., an acquire/release handshake counter between handoffs) creates
+// happens-before edges that mask the race from TSAN's vector clocks.
+//
+// Expected (correct with release/acquire): TSAN is silent; consumer reads a complete
+// payload.
+// Actual (buggy with relaxed): TSAN reports "data race" on m_payload and the run aborts.
 TEST(EventSlot, DISABLED_consumer_observes_complete_payload) {
-    // NOTE: This test is a simplified single-threaded stand-in. The real validation
-    // requires multi-threaded stress testing or TSAN. In single-threaded execution,
-    // relaxed ordering has no observable effect. The test documents intent.
     event_slot slot;
 
-    event_payload published{};
-    published.timestamp = 0xDEAD'BEEF'CAFE'BABE;
-    published.event_type = 42;
-    published.value = 2.718281828;
-    slot.publish(published);
+    std::thread producer([&slot] {
+        event_payload p{};
+        p.timestamp = 0xDEAD'BEEF'CAFE'BABE;
+        p.event_type = 42;
+        p.value = 2.718281828;
+        slot.publish(p);
+    });
 
+    // Consumer: spin until the producer's publish is visible, then read the payload.
+    // The producer→consumer edge is exactly what publish()/try_consume() must provide —
+    // and with memory_order_relaxed it does not.
     event_payload consumed{};
-    ASSERT_TRUE(slot.try_consume(consumed));
+    while (!slot.try_consume(consumed)) {
+    }
 
     // If ordering is correct, ALL fields must match exactly.
     EXPECT_EQ(consumed.timestamp, 0xDEAD'BEEF'CAFE'BABE)
-        << "Timestamp mismatch — possible torn read due to relaxed ordering (BUG-009)";
-    EXPECT_EQ(consumed.event_type, 42u)
-        << "Event type mismatch — possible torn read (BUG-009)";
-    EXPECT_DOUBLE_EQ(consumed.value, 2.718281828)
-        << "Value mismatch — possible torn read (BUG-009)";
+        << "Timestamp mismatch — torn/stale read due to relaxed ordering (BUG-009)";
+    EXPECT_EQ(consumed.event_type, 42u) << "Event type mismatch — torn/stale read (BUG-009)";
+    EXPECT_DOUBLE_EQ(consumed.value, 2.718281828) << "Value mismatch — torn/stale read (BUG-009)";
+
+    producer.join();
 }
 
 }  // namespace

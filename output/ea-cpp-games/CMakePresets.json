@@ -26,6 +26,32 @@
       }
     },
     {
+      "name": "optimized",
+      "inherits": "default-debug",
+      "displayName": "Optimized (-O2 + debug info; reproduces optimizer-dependent bugs, e.g. BUG-007)",
+      "binaryDir": "${sourceDir}/build-optimized",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "tsan",
+      "inherits": "default-debug",
+      "displayName": "ThreadSanitizer (detects data races, e.g. BUG-009; Clang/AppleClang only)",
+      "binaryDir": "${sourceDir}/build-tsan",
+      "condition": {
+        "type": "notEquals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS": "-fsanitize=thread -g -O1",
+        "CMAKE_C_FLAGS": "-fsanitize=thread -g -O1",
+        "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=thread"
+      }
+    },
+    {
       "name": "windows-msvc",
       "inherits": "default-debug",
       "displayName": "Windows MSVC",
@@ -56,12 +82,26 @@
   ],
   "buildPresets": [
     { "name": "default-debug", "configurePreset": "default-debug" },
-    { "name": "default-release", "configurePreset": "default-release" }
+    { "name": "default-release", "configurePreset": "default-release" },
+    { "name": "optimized", "configurePreset": "optimized" },
+    { "name": "tsan", "configurePreset": "tsan" }
   ],
   "testPresets": [
     {
       "name": "default-debug",
       "configurePreset": "default-debug",
+      "output": { "outputOnFailure": true },
+      "execution": { "noTestsAction": "error", "stopOnFailure": false }
+    },
+    {
+      "name": "optimized",
+      "configurePreset": "optimized",
+      "output": { "outputOnFailure": true },
+      "execution": { "noTestsAction": "error", "stopOnFailure": false }
+    },
+    {
+      "name": "tsan",
+      "configurePreset": "tsan",
       "output": { "outputOnFailure": true },
       "execution": { "noTestsAction": "error", "stopOnFailure": false }
     }

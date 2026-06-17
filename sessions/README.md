@@ -11,6 +11,13 @@ Each folder contains:
 - `facilitator-script.md`
 - `learner-guide.md`
 - `slides.outline.md`
-- `exercises/01-*.md`, `exercises/02-*.md`
+- `exercises/01-*.md` … `exercises/NN-*.md`
 - `retro-survey.md`
 - `pre-work-email.md`
+
+Session 03 additionally ships:
+
+- `logic-bug-workshop-training.md` — instructor deep-dive (CoT/ToT/HITL, agents)
+- `sdlc-walkthrough.md` — full issue → branch → agent fix → PR → CI → merge loop
+- `qa-track.md` — QA/SDET verification track (test plans, FP triage, gate sign-off)
+- `fallback-screenshots/` — capture checklist for demo recovery

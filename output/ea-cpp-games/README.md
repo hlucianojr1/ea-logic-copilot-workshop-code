@@ -34,6 +34,29 @@ ctest --preset default-debug --output-on-failure
 The build is `-fno-exceptions -fno-rtti` everywhere. EASTL is the only allowed container
 library in committed code.
 
+### Diagnostic presets (Session 03)
+
+Two additional presets exist specifically to make seeded bugs reproducible:
+
+| Preset      | Flags                              | Purpose                                                                                  |
+| ----------- | ---------------------------------- | ---------------------------------------------------------------------------------------- |
+| `optimized` | `RelWithDebInfo` (`-O2 -DNDEBUG`)  | Reproduces **BUG-007** — the optimizer elides a UB-dependent overflow guard that "works" in Debug. |
+| `tsan`      | `-fsanitize=thread -g -O1` (Debug) | Reproduces **BUG-009** — ThreadSanitizer reports the relaxed-ordering data race in `event_slot`. Not available on Windows. |
+
+```bash
+# BUG-007: enable the DISABLED_ regression test in tests/engine_demo/test_timer.cpp, then:
+cmake --preset optimized && cmake --build --preset optimized
+ctest --preset optimized -R timer
+
+# BUG-009: enable the DISABLED_ regression test in tests/engine_demo/test_event_queue.cpp, then:
+cmake --preset tsan && cmake --build --preset tsan
+ctest --preset tsan -R event_queue
+```
+
+With the seeded bugs in place, the enabled tests FAIL under these presets (that is the
+demo). After applying the canonical fixes they pass, and all 11 suites stay green under
+`default-debug`, `optimized`, and `tsan`.
+
 ## Run the playable sandbox
 
 The `apps/sandbox/ea-sandbox` binary is the visual entry point — a 2D verlet-rope-plus-
