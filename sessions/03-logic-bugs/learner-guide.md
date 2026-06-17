@@ -1,7 +1,8 @@
 # Session 03 — Logic Bugs (learner guide)
 
 > **Cross-references:** [facilitator-script.md](facilitator-script.md) ·
-> [workshop-guide-advanced.md](workshop-guide-advanced.md) · [exercises](exercises/) ·
+> [logic-bug-workshop-training.md](logic-bug-workshop-training.md) · [exercises](exercises/) ·
+> [sdlc-walkthrough.md](sdlc-walkthrough.md) · [qa-track.md](qa-track.md) ·
 > [retro-survey.md](retro-survey.md)
 
 This guide is self-contained: you can run the whole session **solo**, without a facilitator.
@@ -152,7 +153,8 @@ ctest --preset default-debug --output-on-failure
 
 The advanced path adds five more bugs. The compact reference below keeps this guide
 self-contained; the **`logic-bug-tutor`** agent runs the full four-phase loop for each, and
-[workshop-guide-advanced.md](workshop-guide-advanced.md) has the deep dives.
+[logic-bug-workshop-training.md](logic-bug-workshop-training.md) has the deep dives.
+Hands-on exercise files for BUG-007, 008, 009, and 010 are in [exercises/](exercises/).
 
 | Bug     | Files (under `output/ea-cpp-games/`)         | Re-enable this test                                          | One-line fix                                          |
 | ------- | -------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------- |
@@ -229,11 +231,13 @@ depends on the order bodies were inserted.
 
 ## Going further
 
-- [workshop-guide-advanced.md](workshop-guide-advanced.md) — the full advanced set (BUG-004,
-  007, 008, 009, 010), plus Chain-of-Thought / Tree-of-Thought theory and the
+- [logic-bug-workshop-training.md](logic-bug-workshop-training.md) — the full advanced set
+  (BUG-004, 007, 008, 009, 010), plus Chain-of-Thought / Tree-of-Thought theory and the
   `logic-bug-planner` build-it-yourself agent.
-- [factory-overlay/demo-patterns/proactive-issue-hunt.md](../../factory-overlay/demo-patterns/proactive-issue-hunt.md)
-  — previews Session 04's triage rubric.
+- [sdlc-walkthrough.md](sdlc-walkthrough.md) — take one bug through the full AI SDLC loop:
+  issue → agent fix → PR → CI gate → merge.
+- [qa-track.md](qa-track.md) — the QA-engineer track: test-plan authoring, triage rubric,
+  and sign-off gates.
 
 ## Feedback
 

@@ -9,7 +9,50 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 <!-- markdownlint-disable MD024 -->
 
+### Removed
+
+- **Scoped repository to Session 03 (Logic Bugs) only.** Deleted all content
+  unrelated to the C++ logic-bug resolution workshop:
+  - Session bundles `sessions/01-*` through `sessions/09-*` (except `03-logic-bugs`)
+  - Ten other-session prompt files from `.github/prompts/` (sessions 01, 02,
+    04–09, plus `demo-workspace-fixtures-crash-dumps` and `demo-workspace-spec-kit-init`)
+  - `.github/instructions/spec-kit-artifacts.instructions.md`
+  - `.github/chatmodes/squad-coordinator.chatmode.md`
+  - `tools/new-session.mjs`
+  Retained: `sessions/03-logic-bugs/` (all files), `output/ea-cpp-games/` (full
+  C++ workspace with seeded bugs BUG-001–BUG-010), and all `.github/` files that
+  remain relevant to Session 03 authoring and C++ snippet validation.
+
 ### Added
+
+- **Session 03 (Logic Bugs): full-SDLC + QA dual-track upgrade.**
+  - `sessions/03-logic-bugs/sdlc-walkthrough.md` — complete issue → branch →
+    `@logic-bug-planner` fix → PR (constitutional review rubric, 8 articles) → CI →
+    merge loop, plus worktree-mcp "ToT at scale" wiring and sandbox visual/headless
+    trace repro evidence.
+  - `sessions/03-logic-bugs/qa-track.md` — QA/SDET track: Copilot-assisted test-plan
+    authoring, real-vs-false-positive triage rubric (calibrated on FP-001/002/003),
+    four-gate sign-off template, and trace-diff regression metrics.
+  - Four new exercises: `03-ub-and-the-optimizer.md` (BUG-007),
+    `04-bitwise-vs-logical.md` (BUG-008), `05-atomic-but-not-ordered.md`
+    (BUG-009 + FP-003), `06-sentinel-trap.md` (BUG-010, CoT-vs-ToT comparison).
+  - New `.github/agents/logic-bug-planner.agent.md` four-phase resolver agent
+    (OBSERVE → REPRODUCE → FIX → VERIFY with HITL gates).
+  - Dual-track (developer + QA) facilitator markers in `facilitator-script.md`;
+    two new slides in `slides.outline.md`.
+
+- **Demo workspace: diagnostic CMake presets + BUG-009 made reproducible.**
+  - New `optimized` preset (RelWithDebInfo) reproduces BUG-007's optimizer-elided
+    overflow guard; new `tsan` preset (`-fsanitize=thread -g -O1`) reproduces
+    BUG-009's relaxed-ordering data race. Documented in `output/ea-cpp-games/README.md`.
+  - Rewrote `DISABLED_consumer_observes_complete_payload` in
+    `tests/engine_demo/test_event_queue.cpp` from a single-threaded stand-in to a real
+    cross-thread producer/consumer handoff that TSAN deterministically flags.
+  - `event_slot::publish`/`try_consume` now copy the payload field-by-field: the
+    whole-struct assignment lowered to compiler-emitted memcpy, which the
+    AppleClang/arm64 TSAN runtime does not report races through (verified false
+    negative); discrete accesses restore detection. Seeded defect (relaxed ordering)
+    unchanged. All 11 suites green under `default-debug`, `optimized`, and `tsan`.
 
 - **Session 03 (Logic Bugs): self-guided tutor agent + self-contained learner
   guide.** Added a pre-built `.github/agents/logic-bug-tutor.agent.md` that paces

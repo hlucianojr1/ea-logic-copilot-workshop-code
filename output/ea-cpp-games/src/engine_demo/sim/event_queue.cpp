@@ -40,9 +40,16 @@ namespace engine_demo::sim {
 
 void event_slot::publish(event_payload payload) noexcept {
     // Write the payload data (non-atomic — fine, only one producer).
-    m_payload = payload;
+    // NOTE: written field-by-field rather than by whole-struct assignment. A struct
+    // assignment lowers to memcpy, and the TSAN runtime on some platforms (observed:
+    // AppleClang/arm64) does not report races through compiler-emitted memcpy — a
+    // false negative that would hide BUG-009 from the `tsan` preset. The seeded
+    // defect is the ORDERING below, not the copy mechanism.
+    m_payload.timestamp = payload.timestamp;
+    m_payload.event_type = payload.event_type;
+    m_payload.value = payload.value;
 
-    // BUG-009: memory_order_relaxed does NOT fence the above payload write.
+    // BUG-009: memory_order_relaxed does NOT fence the above payload writes.
     // On ARM, the consumer may see m_ready==true before m_payload is visible.
     // Fix: std::memory_order_release
     m_ready.store(true, std::memory_order_relaxed);
@@ -53,7 +60,12 @@ bool event_slot::try_consume(event_payload& out) noexcept {
     // On ARM, we may load m_ready==true but read stale m_payload.
     // Fix: std::memory_order_acquire
     if (m_ready.load(std::memory_order_relaxed)) {
-        out = m_payload;
+        // Field-by-field copy for the same TSAN-visibility reason as publish() —
+        // a whole-struct assignment lowers to memcpy, which this platform's TSAN
+        // runtime does not report races through.
+        out.timestamp = m_payload.timestamp;
+        out.event_type = m_payload.event_type;
+        out.value = m_payload.value;
         m_ready.store(false, std::memory_order_relaxed);
         return true;
     }

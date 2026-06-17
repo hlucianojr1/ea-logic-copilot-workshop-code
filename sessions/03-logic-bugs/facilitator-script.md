@@ -1,6 +1,6 @@
 # Session 03 — Bug & Defect Fixing: Logic Bugs (facilitator script)
 
-> **Cross-references:** [`learner-guide.md`](learner-guide.md) · [`slides.outline.md`](slides.outline.md) · [`retro-survey.md`](retro-survey.md) · [exercises](exercises/)
+> **Cross-references:** [`learner-guide.md`](learner-guide.md) · [`slides.outline.md`](slides.outline.md) · [`retro-survey.md`](retro-survey.md) · [exercises](exercises/) · [`sdlc-walkthrough.md`](sdlc-walkthrough.md) · [`qa-track.md`](qa-track.md)
 
 ## Session at a glance
 
@@ -10,6 +10,10 @@
   1. Apply the **observe → reproduce → bisect** pattern to a non-crashing logic bug.
   2. Use Copilot to author a _minimal failing test_ before any fix.
   3. Distinguish numerical drift from off-by-one — both anchors live in this session.
+
+> **Facilitator note:** dual-track session. Developers follow the live demo; QA
+> engineers additionally own the HITL-gate verdicts using [`qa-track.md`](qa-track.md).
+> Announce the split in the opening and pair each QA learner with a developer.
 
 ## Pre-session checklist (T-15 min)
 
@@ -22,6 +26,8 @@
 > **Say:** "Last week we used the debugger to find _where_ a bug fires. This week the bug never fires loudly — it drifts. Replay diverges. Telemetry is slightly wrong. We need a different muscle."
 
 > **Do:** show the agenda. Two bugs: BUG-002 (numerical drift, 25 min), BUG-006 (off-by-one, 20 min).
+
+> **Say:** "If you're QA: your job today is not to fix anything — it's to be unfoolable. At every HITL gate you'll record an approve/reject verdict with evidence, using the template in the QA track doc."
 
 ## Block 1: BUG-002 — observe / reproduce / bisect (0:05 – 0:30)
 
@@ -49,6 +55,9 @@ it fails."
 
 > **HITL gate:** facilitator runs ctest; learners see the failure live.
 
+> **Facilitator note (QA track):** pause 30 s — QA learners record the Gate 3 verdict
+> (test reproduces failure) using the template in [`qa-track.md`](qa-track.md) §3.
+
 > **Say:** "Phase 3 is **bisect** — but in a single-file scope, bisection is just 'change the type and rebuild'."
 
 > **Do:** Edit Mode:
@@ -63,6 +72,9 @@ Constitutional articles 1, 2, 5 must hold.
 > **Watch for:** the diff also drops the `static_cast<float>` calls. If Copilot leaves them in, ask "are any casts now redundant?"
 
 > **HITL gate:** rerun ctest; the regression test passes.
+
+> **Facilitator note (QA track):** QA learners record Gate 4 (fix minimal & safe) —
+> `git diff --stat` should show exactly two files: the header and the source.
 
 ## Block 2: BUG-006 — off-by-one in a rolling window (0:30 – 0:50)
 
@@ -110,6 +122,11 @@ DISABLED_first_sample_is_not_double_counted_on_warmup.
 ## Stretch goals
 
 - Combine BUG-002 + BUG-006 into a single "find them both with one belt" exercise.
+- Walk the full issue→branch→PR→merge loop for BUG-002 using
+  [`sdlc-walkthrough.md`](sdlc-walkthrough.md) — including the headless trace diff as
+  PR evidence.
+- Self-paced follow-ups: [exercises 03–06](exercises/) cover BUG-007/008/009/010 with
+  the `optimized` and `tsan` presets.
 
 ## Recovery script
 
