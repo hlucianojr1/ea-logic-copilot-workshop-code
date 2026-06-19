@@ -193,7 +193,7 @@ Explain in one sentence why this test will fail.
 ctest --preset default-debug --output-on-failure -R long_run
 ```
 
-> **Watch for:** The test fails at approximately frame 1800 with "drift at frame XXXX."
+> **Watch for:** The test fails with `substep drift at frame 3599` and `cumulative substep drift over 3600 frames` — the float loop fires 2159 substeps where the inline double reference fires 2160 over 36 simulated seconds.
 
 > **Say:** "Phase 2 complete — we have a red test. This is the test-first discipline: never fix what you can't reproduce."
 
@@ -231,7 +231,7 @@ ctest --preset default-debug --output-on-failure -R long_run
 
 > **Do:** Open `src/engine_demo/sim/timer.cpp` and `include/engine_demo/sim/timer.h` side by side.
 
-> **Say:** "Read the overflow guard on line 25 of timer.cpp: `if (m_elapsed_ms + delta_ms > m_elapsed_ms)`. Looks defensive, right? It's checking for overflow. Raise your hand if you'd approve this in code review."
+> **Say:** "Read the overflow guard on line 32 of timer.cpp: `if (m_elapsed_ms + delta_ms > m_elapsed_ms)`. Looks defensive, right? It's checking for overflow. Raise your hand if you'd approve this in code review."
 
 > **Watch for:** Most hands go up. This is the teaching moment.
 
@@ -257,13 +257,19 @@ signed integer overflow and how a conforming optimizer treats this code.
 
 > **Do:** Enable `DISABLED_overflow_guard_not_elided` in `tests/engine_demo/test_timer.cpp`.
 
-> **Do:** Run the test (ideally with an optimized build if available, or explain the behavior):
+> **Do:** Run the test in the optimized (-O2) preset, where the elision actually bites:
+
+```bash
+ctest --preset optimized --output-on-failure -R overflow
+```
+
+> **Do:** For contrast, run the same test in the Debug (-O0) preset — it passes by accident because the guard is not elided:
 
 ```bash
 ctest --preset default-debug --output-on-failure -R overflow
 ```
 
-> **Watch for:** In Debug builds the test may pass by accident (the guard works at -O0). Explain that at -O2, it fails.
+> **Watch for:** `optimized` FAILS (the signed-overflow guard is deleted at -O2); `default-debug` PASSES (the guard runs at -O0). That contrast is the entire lesson — "works in Debug" is not validation.
 
 #### Step 4: Fix
 
@@ -443,15 +449,15 @@ This enforces the constitutional Article 7 mandate: test-first workflow.
 
 ## 2d. Test Inventory
 
-| Test File               | Bug     | DISABLED\_ Test Name                                         | What it proves                              |
-| ----------------------- | ------- | ------------------------------------------------------------ | ------------------------------------------- |
-| `test_game_loop.cpp`    | BUG-002 | `DISABLED_long_run_does_not_drift`                           | Float accumulator drifts after ~1800 frames |
-| `test_frame_budget.cpp` | BUG-006 | `DISABLED_first_sample_is_not_double_counted_on_warmup`      | Rolling window miscounts on warm-up         |
-| `test_constraint.cpp`   | BUG-004 | `DISABLED_solve_is_deterministic_across_construction_orders` | Hash-map traversal order breaks determinism |
-| `test_timer.cpp`        | BUG-007 | `DISABLED_overflow_guard_not_elided`                         | Signed overflow guard deleted at -O2        |
-| `test_replay_state.cpp` | BUG-008 | `DISABLED_padding_does_not_affect_comparison`                | memcmp reads uninitialized padding          |
-| `test_event_queue.cpp`  | BUG-009 | `DISABLED_consumer_observes_complete_payload`                | Relaxed ordering → data race on ARM         |
-| `test_interpolator.cpp` | BUG-010 | `DISABLED_unstarted_does_not_read_oob`                       | -1 → SIZE_MAX defeats bounds check          |
+| Test File               | Bug     | DISABLED\_ Test Name                                         | What it proves                                            |
+| ----------------------- | ------- | ------------------------------------------------------------ | --------------------------------------------------------- |
+| `test_game_loop.cpp`    | BUG-002 | `DISABLED_long_run_does_not_drift`                           | Float loop misses a substep vs. double ref (2159 vs 2160) |
+| `test_frame_budget.cpp` | BUG-006 | `DISABLED_first_sample_is_not_double_counted_on_warmup`      | Rolling window miscounts on warm-up                       |
+| `test_constraint.cpp`   | BUG-004 | `DISABLED_solve_is_deterministic_across_construction_orders` | Hash-map traversal order breaks determinism               |
+| `test_timer.cpp`        | BUG-007 | `DISABLED_overflow_guard_not_elided`                         | Signed overflow guard deleted at -O2                      |
+| `test_replay_state.cpp` | BUG-008 | `DISABLED_padding_does_not_affect_comparison`                | memcmp reads uninitialized padding                        |
+| `test_event_queue.cpp`  | BUG-009 | `DISABLED_consumer_observes_complete_payload`                | Relaxed ordering → data race on ARM                       |
+| `test_interpolator.cpp` | BUG-010 | `DISABLED_unstarted_does_not_read_oob`                       | -1 → SIZE_MAX defeats bounds check                        |
 
 ---
 
@@ -553,7 +559,8 @@ memory_order_relaxed correct for an SPSC producer-consumer pattern?
 ````text
 **Bug found: Insufficient memory ordering in SPSC event slot.**
 
-In `publish()`, the payload write (`m_payload = payload`) is a non-atomic store.
+In `publish()`, the payload write (the field-by-field copy of `payload.timestamp`,
+`payload.event_type`, and `payload.value` into `m_payload`) is a non-atomic store.
 The subsequent `m_ready.store(true, memory_order_relaxed)` does NOT fence this write.
 
 On ARM/Apple Silicon (weakly ordered):
@@ -847,9 +854,9 @@ Will run after fix is approved and applied:
 
 **Time:** 15 min
 
-### Step 1: Create the file
+### Step 1: Review the agent file
 
-> **Do:** Create `.github/agents/logic-bug-planner.agent.md` with the content from Section 4a.
+> **Do:** Open the existing `.github/agents/logic-bug-planner.agent.md` and confirm its content matches Section 4a. (The file ships with the workspace — review and confirm it rather than recreating it.)
 
 ### Step 2: Test with a simple bug
 
@@ -880,8 +887,12 @@ average should be (2+4+6)/3 = 4.0, but the code may include a stale zero from sl
 **Action:** Enable `DISABLED_first_sample_is_not_double_counted_on_warmup` in
 `tests/engine_demo/test_frame_budget.cpp`.
 
-**Result:** Running `ctest -R warmup` — test FAILS: `rolling_average()` returns a value
-≠ 10.0 for a single sample of 10.0.
+**Result:** Running `ctest -R warmup` — the test PASSES as seeded: a single sample of
+10.0 yields `rolling_average() == 10.0`, because `m_count` is 1 and only the written
+slot is summed (the backing array is zero-initialized). BUG-006 does **not** reproduce
+in the seeded tree — this is a deliberate *non-reproducing* hypothesis. To make it fail
+you would first reseed `rolling_average()` to iterate the full fixed window instead of
+`[0, m_count)`.
 
 ---
 
@@ -1117,7 +1128,7 @@ cast to size_t?
 > The structure and reasoning pattern should match.
 
 ```text
-Step 1: Before start() is called, m_current_index is initialized to -1 (line 52 of header).
+Step 1: Before start() is called, m_current_index is initialized to -1 (line 50 of header).
 
 Step 2: current_value() executes:
   const auto idx = static_cast<std::size_t>(m_current_index);
@@ -1252,10 +1263,12 @@ Evidence:
 - m_accumulator_seconds is declared as `float` in game_loop.h (line 34).
 - advance() narrows via `static_cast<float>(delta_seconds)` — losing ~ulp(float)/step.
 - Constitution Article 5 explicitly mandates: "Time accumulators are double."
-- After 1800 frames at 1/60s, accumulated float error exceeds the step size:
-  • float ulp at 30.0 ≈ 1.9e-6
-  • 1800 × 1.9e-6 ≈ 3.4e-3 error vs. step 1.67e-2
-  • Error is ~20% of step size → substep count oscillates.
+- Under sub-period frame deltas (the regression test feeds 10 ms frames against a
+  1/60 s step), float rounding of the drained accumulator perturbs the substep count:
+  • float ulp near the step magnitude ≈ 1e-7
+  • the residual occasionally rounds one frame's substep count down by one
+  • over 36 simulated seconds the float loop fires one fewer substep than a double
+    reference (2159 vs 2160).
 
 This is a textbook constitutional violation. Proceed to Gate 2.
 ```
@@ -1293,8 +1306,10 @@ No violations. Proceed to Gate 3.
 ### Gate 3: Does the test actually reproduce the failure?
 
 ```text
-I enabled DISABLED_long_run_does_not_drift and ran ctest. The test fails at frame
-1823 with "drift at frame 1823". Confirm this matches the expected failure mode.
+I enabled long_run_does_not_drift and ran ctest. The test fails with `substep drift at
+frame 3599` and `cumulative substep drift over 3600 frames` — the float loop fires 2159
+substeps where the inline double reference fires 2160. Confirm this matches the expected
+failure mode.
 ```
 
 > ⚠️ Model-drift note: Exact output may vary across Copilot model updates.
@@ -1303,12 +1318,16 @@ I enabled DISABLED_long_run_does_not_drift and ran ctest. The test fails at fram
 ```text
 **Gate 3 verdict: TEST REPRODUCES (confirmed)**
 
-The failure at frame ~1823 is consistent with the analysis:
-- At 60 FPS, frame 1823 ≈ 30.4 simulated seconds.
-- This matches the bug report's "~30 simulated seconds" threshold.
-- The failure message "drift at frame 1823" confirms the substep count oscillation.
-- The test runs 3600 frames (60 seconds) — if the bug is fixed, all frames should
-  return exactly 1 substep.
+The failure is consistent with the analysis:
+- The test feeds 10 ms frames (delta = 1/100 s) against a 1/60 s fixed step over
+  3600 frames (36 simulated seconds).
+- Each frame it compares the float loop's substep count against an inline
+  double-precision reference accumulator.
+- Float rounding of the drained residual rounds one frame's count down near the end of
+  the run, so the float loop totals 2159 substeps versus the reference's 2160 — surfaced
+  as `substep drift at frame 3599` and `cumulative substep drift over 3600 frames`.
+- If the bug is fixed (double accumulator), every frame matches the reference and both
+  totals are 2160.
 
 The test correctly reproduces the failure. Proceed to Gate 4.
 ```
