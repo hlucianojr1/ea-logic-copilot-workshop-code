@@ -101,6 +101,29 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- **Session 03 (Logic Bugs): training-doc verification — 9 documentation drift
+  items reconciled + BUG-002 RED repro restored.** Audited
+  `sessions/03-logic-bugs/logic-bug-workshop-training.md` against the live
+  `output/ea-cpp-games/` workspace and corrected every divergence recorded in
+  the new `docs/session-03-training-verification-checklist.md`:
+  - **BUG-002 (timestep drift)** — reseeded the `DISABLED_long_run_does_not_drift`
+    test in `tests/engine_demo/test_game_loop.cpp` so it reproduces RED exactly as
+    the doc claims: a 10 ms (`1/100 s`) frame delta against the `1/60 s` fixed step
+    over 3600 frames, comparing the seeded `float` accumulator's substep count to a
+    `double` reference (`loop_total` 2159 vs `ref_total` 2160). Baseline stays
+    11/11 green (test remains `DISABLED_`).
+  - **Line-number / behavior corrections** — timer guard line `25`→`32`;
+    interpolator sentinel line `52`→`50`; BUG-007 repro split into "FAILS under
+    `optimized`, PASSES under `default-debug`"; `event_queue` quote updated to the
+    field-by-field copy; test-inventory cell corrected to the float-vs-double
+    substep mismatch.
+  - **Planner phase label** Create→Review; **BUG-006** re-described as
+    "passes as-seeded / non-reproducing hypothesis" (cannot be reseeded RED
+    without breaking the enabled baseline) and marked doc-corrected.
+  - Refreshed the checklist's per-section Result cells and drift-summary rows to
+    past-tense "Applied". Generic float-mantissa pedagogy and the illustrative
+    appendix figures were intentionally left unchanged.
+
 - **Repo gate cleanup: all lint and snippet gates green.** Brought the full
   repository to a clean `npm run lint` + `npm run validate:snippets` +
   `npm run validate:prompts` state with mechanical, content-preserving fixes:
