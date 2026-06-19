@@ -18,6 +18,7 @@
 5. [Tree of Thought (ToT) Deep-Dive](#section-5--tree-of-thought-tot-deep-dive-25-min)
 6. [Human-in-the-Loop (HITL)](#section-6--human-in-the-loop-hitl-25-min)
 7. [Appendix: Intermediate Developer Bridge](#section-7--appendix-intermediate-developer-bridge)
+8. [New Copilot Capabilities: Loops, Skills & Cheaper Models](#section-8--new-copilot-capabilities-loops-skills--cheaper-models-static-guide-15-min)
 
 ---
 
@@ -1730,19 +1731,113 @@ The constitution exists to prevent classes of bugs that are catastrophic in game
 
 ---
 
+## Section 8 — New Copilot Capabilities: Loops, Skills & Cheaper Models (STATIC GUIDE, ~15 min)
+
+> **Format:** Static guide. Read-along, then the optional hands-on in 8c.
+> **Why it's here:** Sections 1–6 resolve **one** bug at a time on a premium model. This
+> section shows three newer Copilot capabilities that change the economics: **agentic loops**
+> (analyze many bugs in one run), **Agent Skills** (package the procedure so it's reusable),
+> and **model selection** (run that packaged procedure on a cheaper model without losing
+> quality).
+
+> ⚠️ Model-drift note: Exact output may vary across Copilot model updates. The file paths,
+> presets, and `DISABLED_` test names below are the stable contract — the prose Copilot
+> generates around them will differ.
+
+### 8a — Agentic loops: one run, many bugs
+
+The single-bug workflow is great for depth but does not scale to a backlog. An **agentic
+loop** iterates a fixed procedure over a list of inputs. We ship one as a prompt file:
+[`.github/prompts/logic-bug-sweep.prompt.md`](../../.github/prompts/logic-bug-sweep.prompt.md).
+
+It runs **OBSERVE + REPRODUCE** for every `BUG-XXX` you pass, then emits a single triage
+table. Critically, it is **analysis-only** — it stops at an explicit HITL gate before any
+fix:
+
+```text
+Bug      | Symptom                         | Suspected article | Verdict | Reproduces? | Preset
+-------- | ------------------------------- | ----------------- | ------- | ----------- | -------------
+BUG-002  | Replay drifts after ~30s        | 5 Determinism     | real    | yes (red)   | default-debug
+BUG-006  | First frame double-counted      | 6 Real-time       | real    | yes (red)   | default-debug
+BUG-010  | Unstarted interp reads OOB       | 7 Test-first      | real    | yes (red)   | default-debug
+```
+
+Why analysis-only? A batch that **fixes** as it goes removes the per-fix HITL checkpoint that
+Section 6 spent 25 minutes justifying — and physics (BUG-004) and replay (BUG-008/009) fixes
+are exactly the ones that need human sign-off. The loop does the tedious, safe part
+(reproduce + triage) at scale and hands the judgment calls back to you, one at a time.
+
+**Run it (Agent mode):** `/logic-bug-sweep` with `bug_ids: BUG-002 BUG-006 BUG-010`. The
+prompt restores every `DISABLED_` prefix it touched, so the tree stays clean — verify with
+`git status --porcelain output/ea-cpp-games/src` (empty = no source was edited).
+
+### 8b — A minimized, skill-based agent on a cheaper model
+
+Section 4's `logic-bug-planner` agent is powerful but **heavy**: its `.agent.md` body is
+~80 lines because it carries all the rules, the four-phase contract, and the ctest commands
+inline. Every invocation re-sends that context to a premium model.
+
+We can split that into two pieces:
+
+1. **An Agent Skill** — [`.github/skills/logic-bug-triage/SKILL.md`](../../.github/skills/logic-bug-triage/SKILL.md) —
+   that holds the procedure, the hard constraints, the per-phase output format, and a
+   resource file [`bug-map.md`](../../.github/skills/logic-bug-triage/bug-map.md) mapping each
+   bug to its source, `DISABLED_` test, and preset.
+2. **A minimized agent** — [`.github/agents/logic-bug-resolver-lite.agent.md`](../../.github/agents/logic-bug-resolver-lite.agent.md) —
+   whose body is ~15 lines. It does almost nothing except "load the `logic-bug-triage` skill
+   and follow it," and it pins `model: Claude Haiku 4.5 (copilot)`.
+
+| Aspect            | `logic-bug-planner` (full)     | `logic-bug-resolver-lite` (minimized) |
+| ----------------- | ------------------------------ | ------------------------------------- |
+| Agent body length | ~80 lines (rules inline)       | ~15 lines (defers to skill)           |
+| Where rules live  | In the agent prompt            | In the `logic-bug-triage` skill       |
+| Model             | Premium (Sonnet-class default) | Cheaper (Haiku 4.5)                   |
+| HITL gate         | Yes                            | Yes (inherited from the skill)        |
+
+**Why does a cheaper model still do well here?** Two reasons:
+
+- **Progressive disclosure.** The skill loads in layers — name + description first, then the
+  SKILL.md body, then `bug-map.md` only when a specific bug needs it. A small model is not
+  asked to hold everything at once; it pulls exactly the slice it needs.
+- **Structured procedure over reasoning.** The hard thinking (which preset, which test, which
+  article, which false positives) is already encoded. The model executes a checklist instead
+  of re-deriving it — exactly the kind of task small models are reliable at.
+
+> **Cost lever (optional):** the skill defaults to `context: inline`, which keeps the agent's
+> reasoning visible in your chat — best for a workshop. For production batch runs you can set
+> `context: fork` so the skill executes in a subagent: cleaner main thread and fewer premium
+> tokens, at the cost of hiding the step-by-step reasoning.
+
+The takeaway: **skills move knowledge out of the model and into reusable files.** Once the
+knowledge is external, the model's job shrinks — and a smaller, cheaper model becomes
+sufficient.
+
+### 8c — Try it (optional, ~5 min)
+
+1. **Lite agent on a cheap model.** Switch the chat model to **Claude Haiku 4.5**, select the
+   `logic-bug-resolver-lite` agent, and ask it to `Resolve BUG-006`. Confirm it auto-loads the
+   `logic-bug-triage` skill, runs the four phases, and pauses at the HITL gate before any edit.
+2. **The loop.** Run `/logic-bug-sweep` with `bug_ids: BUG-002 BUG-006 BUG-010` and confirm
+   you get a triage table and that the sweep stops before fixing. Check the tree is clean.
+3. **Compare.** Note how the lite agent's output matches the planner's four-phase format even
+   though its prompt is a fraction of the size — the skill supplied the rest.
+
+---
+
 ## Timing Summary
 
-| Section | Title                                   | Format       | Duration            |
-| ------- | --------------------------------------- | ------------ | ------------------- |
-| 1       | AI Agent Resolving Logic Bugs           | LIVE DEMO    | ~20 min             |
-| 2       | Overall Logic Resolver Walkthrough      | Static Guide | ~15 min             |
-| 3       | Context Foundation                      | Static Guide | ~25 min             |
-| 4       | Copilot AI Custom Agents                | Static Guide | ~30 min             |
-| 5       | Tree of Thought Deep-Dive               | Static Guide | ~25 min             |
-| 6       | Human-in-the-Loop                       | Static Guide | ~25 min             |
-| 7       | Appendix: Intermediate Developer Bridge | Reference    | ~10 min (as needed) |
-| —       | **Buffer / Q&A**                        | —            | ~10–30 min          |
-| —       | **Total**                               | —            | **150–180 min**     |
+| Section | Title                                                    | Format       | Duration            |
+| ------- | -------------------------------------------------------- | ------------ | ------------------- |
+| 1       | AI Agent Resolving Logic Bugs                            | LIVE DEMO    | ~20 min             |
+| 2       | Overall Logic Resolver Walkthrough                       | Static Guide | ~15 min             |
+| 3       | Context Foundation                                       | Static Guide | ~25 min             |
+| 4       | Copilot AI Custom Agents                                 | Static Guide | ~30 min             |
+| 5       | Tree of Thought Deep-Dive                                | Static Guide | ~25 min             |
+| 6       | Human-in-the-Loop                                        | Static Guide | ~25 min             |
+| 7       | Appendix: Intermediate Developer Bridge                  | Reference    | ~10 min (as needed) |
+| 8       | New Copilot Capabilities: Loops, Skills & Cheaper Models | Static Guide | ~15 min             |
+| —       | **Buffer / Q&A**                                         | —            | ~10–30 min          |
+| —       | **Total**                                                | —            | **165–195 min**     |
 
 ---
 
@@ -1760,7 +1855,8 @@ The constitution exists to prevent classes of bugs that are catastrophic in game
 | 4   | **Section 4 (Custom Agents):** Could you build a custom agent mode for your own codebase tomorrow? | ○   | ○   | ○   | ○   | ○   |
 | 5   | **Section 5 (ToT):** How confident are you applying Tree of Thought prompting to ambiguous bugs?   | ○   | ○   | ○   | ○   | ○   |
 | 6   | **Section 6 (HITL):** Do you understand when to use HITL vs. autonomous vs. human-on-the-loop?     | ○   | ○   | ○   | ○   | ○   |
-| 7   | **Overall:** How confident are you applying today's techniques to your day job?                    | ○   | ○   | ○   | ○   | ○   |
+| 7   | **Section 8 (Loops/Skills/Models):** How ready are you to use loops, skills, and cheaper models?   | ○   | ○   | ○   | ○   | ○   |
+| 8   | **Overall:** How confident are you applying today's techniques to your day job?                    | ○   | ○   | ○   | ○   | ○   |
 
 ### Open Text
 
@@ -1781,3 +1877,6 @@ The constitution exists to prevent classes of bugs that are catastrophic in game
 | Human-in-the-Loop (HITL) | ○   | ○   | ○   | ○   | ○   |
 | Custom Agent Modes       | ○   | ○   | ○   | ○   | ○   |
 | Context Layering         | ○   | ○   | ○   | ○   | ○   |
+| Agentic Loops (batch)    | ○   | ○   | ○   | ○   | ○   |
+| Agent Skills             | ○   | ○   | ○   | ○   | ○   |
+| Cheaper-Model Agents     | ○   | ○   | ○   | ○   | ○   |

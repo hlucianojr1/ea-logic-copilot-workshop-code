@@ -25,6 +25,19 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **Session 03: Section 8 — Loops, Skills & Cheaper Models.** New static-guide section
+  in `sessions/03-logic-bugs/logic-bug-workshop-training.md` (plus ToC, Timing Summary,
+  and Retro Survey updates) demonstrating three newer Copilot capabilities, backed by
+  three real companion artifacts:
+  - `.github/prompts/logic-bug-sweep.prompt.md` — an analysis-only **agentic loop** that
+    runs OBSERVE + REPRODUCE across a list of `BUG-XXX` ids and emits a triage table,
+    stopping at an HITL gate before any fix.
+  - `.github/skills/logic-bug-triage/SKILL.md` (+ `bug-map.md` resource) — an **Agent
+    Skill** packaging the four-phase triage procedure, constitutional constraints, and the
+    per-bug source/test/preset map with progressive disclosure.
+  - `.github/agents/logic-bug-resolver-lite.agent.md` — a **minimized agent** (~15-line
+    body) that defers to the `logic-bug-triage` skill and pins
+    `model: Claude Haiku 4.5 (copilot)`, showing a cheaper model can run the workflow.
 - **Session 03 (Logic Bugs): full-SDLC + QA dual-track upgrade.**
   - `sessions/03-logic-bugs/sdlc-walkthrough.md` — complete issue → branch →
     `@logic-bug-planner` fix → PR (constitutional review rubric, 8 articles) → CI →
