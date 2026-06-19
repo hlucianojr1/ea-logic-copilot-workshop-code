@@ -19,6 +19,15 @@ reproduction tool.
    ctest --preset tsan -R event_queue
    ```
 
+   > **Facilitator note:** TSan output is verbose — expect 3+ data-race warnings followed
+   > by a process abort. For a live demo, run the binary directly and pipe through `head`
+   > to focus learners on the first data-race summary:
+   >
+   > ```bash
+   > build-tsan/tests/engine_demo/test_event_queue \
+   >     --gtest_filter="EventSlot.consumer_observes_complete_payload" 2>&1 | head -30
+   > ```
+
    ThreadSanitizer reports a **data race** on `m_payload` in `try_consume` and the run
    aborts. Under `default-debug` the same test passes — the race is real but invisible
    without instrumentation.
