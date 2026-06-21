@@ -31,6 +31,19 @@ adheres to [Semantic Versioning](https://semver.org/).
   seeded regression tests are still `DISABLED_`, runs the full suite, and prints a
   `READY`/`NOT READY` verdict. Run it before starting the session and between Demo A and Demo B.
 
+### Changed
+
+- **Session 03 training-guide reorder — agentic resolver now leads.** Merged the old Section 1
+  (live demo) and old Section 4 (custom-agent build) into a single **Section 1 — The Agentic
+  Logic Bug Resolver** (~50 min, subsections 1a–1i: architecture → reasoning techniques → live
+  demo → fallback → build `logic-bug-planner` → agent invocations → model-tier note).
+  Renumbered the remaining sections (old 2→2, 3→3, 5→4, 6→5, 7→6 Appendix, 8→7 New
+  Capabilities) and remapped every cross-reference (TOC anchors, appendix **Supports:** lines,
+  Section 7 prose, Timing Summary, and retro-survey questions). Added 💵 **Model tier** callouts
+  so the premium `logic-bug-planner` agent leads while the cheaper `logic-bug-resolver-lite`
+  (Claude Haiku 4.5) handles the follow-through bug fixes in Sections 3–5. File touched:
+  `sessions/03-logic-bugs/logic-bug-workshop-training.md`.
+
 ### Fixed
 
 - **Session 03 `ctest -R` filters that matched no tests.** ctest `-R` is a regex *substring*

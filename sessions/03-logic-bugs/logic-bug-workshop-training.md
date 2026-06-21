@@ -11,14 +11,13 @@
 
 ## Table of Contents
 
-1. [AI Agent Resolving Logic Bugs — Demonstration (LIVE DEMO)](#section-1--ai-agent-resolving-logic-bugs--demonstration-20-min)
+1. [The Agentic Logic Bug Resolver (LIVE DEMO + Custom Agent)](#section-1--the-agentic-logic-bug-resolver-50-min)
 2. [Overall Logic Resolver Walkthrough](#section-2--overall-logic-resolver-walkthrough-15-min)
 3. [Context Foundation](#section-3--context-foundation-25-min)
-4. [Copilot AI Custom Agents](#section-4--copilot-ai-custom-agents-30-min)
-5. [Tree of Thought (ToT) Deep-Dive](#section-5--tree-of-thought-tot-deep-dive-25-min)
-6. [Human-in-the-Loop (HITL)](#section-6--human-in-the-loop-hitl-25-min)
-7. [Appendix: Intermediate Developer Bridge](#section-7--appendix-intermediate-developer-bridge)
-8. [New Copilot Capabilities: Loops, Skills & Cheaper Models](#section-8--new-copilot-capabilities-loops-skills--cheaper-models-static-guide-15-min)
+4. [Tree of Thought (ToT) Deep-Dive](#section-4--tree-of-thought-tot-deep-dive-25-min)
+5. [Human-in-the-Loop (HITL)](#section-5--human-in-the-loop-hitl-25-min)
+6. [Appendix: Intermediate Developer Bridge](#section-6--appendix-intermediate-developer-bridge)
+7. [New Copilot Capabilities: Loops, Skills & Cheaper Models](#section-7--new-copilot-capabilities-loops-skills--cheaper-models-static-guide-15-min)
 
 > **Before you begin:** run the one-time [Pre-flight Setup](#pre-flight-setup-run-once-t-10-min) to confirm a green, seeded baseline.
 
@@ -80,15 +79,17 @@ Stop and report a PASS/FAIL checklist. Do not edit any source or test file.
 
 ---
 
-## Section 1 — AI Agent Resolving Logic Bugs — Demonstration (~20 min)
+## Section 1 — The Agentic Logic Bug Resolver (~50 min)
 
-**Format: LIVE DEMO** — no expected Copilot output inline. Trainer runs everything live.
+**Format: LIVE DEMO + STATIC GUIDE** — the demo (1a–1d) runs live with no inline output; the
+custom-agent build (1e–1h) includes expected Copilot output inline.
 
 ## Learning Objectives
 
 1. Witness the end-to-end agentic workflow resolving two real C++ logic bugs.
 2. Understand the three reasoning techniques: Chain of Thought, Tree of Thought, Human-in-the-Loop.
 3. See how layered context (constitution + AGENTS.md) shapes Copilot's analysis quality.
+4. Encode that workflow into a reusable custom agent (`logic-bug-planner`) and run it on real defects.
 
 ## 1a. Architecture Diagram — Agentic Logic Bug Resolver
 
@@ -456,6 +457,334 @@ ctest --preset optimized --output-on-failure -R test_timer
 
 ---
 
+## 1e. Build the Custom Agent — `logic-bug-planner`
+
+> **Say:** "We just resolved BUG-002 and BUG-007 live. Now we encode that exact
+> observe → reproduce → fix → verify workflow into a reusable custom agent — so we never
+> retype the constitution, the `DISABLED_` pattern, and the ctest commands again."
+
+By the end of this block you will be able to:
+
+1. Build a custom Copilot agent mode from scratch.
+2. Define agent instructions, tools, and workflow for systematic bug resolution.
+3. Test the agent against real seeded defects.
+
+> 🔧 **Block Setup** — confirm the agent is installed and the baseline is green. Paste into
+> the **Agent** panel with `@logic-bug-planner` selected:
+
+```text
+@logic-bug-planner
+Self-check before the agent block: confirm you are loaded and report (a) which constitution
+articles you enforce, (b) the observe→reproduce→fix→verify gate you follow, and
+(c) that `ctest --preset default-debug` in output/ea-cpp-games/ is green. Do not fix anything.
+```
+
+> **Say:** "Instead of typing the same context attachments and workflow instructions into every prompt, we encode them into a custom agent mode. This is the 'logic-bug-planner' — a specialized Copilot agent that knows the constitution, knows the DISABLED\_ pattern, and follows a strict observe→reproduce→fix→verify workflow."
+
+Create file `.github/agents/logic-bug-planner.agent.md`:
+
+````markdown
+---
+name: logic-bug-planner
+description: >
+  Systematic logic bug resolver for the engine_demo C++20 game-engine workspace.
+  Follows observe → reproduce → fix → verify workflow with constitutional compliance
+  checks at every step.
+tools:
+  - codebase
+  - terminal
+  - editFile
+---
+
+# Logic Bug Planner
+
+You are an expert C++20 game-engine debugger working in the `output/ea-cpp-games/`
+workspace. You resolve logic bugs using a strict four-phase workflow.
+
+## Context (always loaded)
+
+- **AGENTS.md** at `output/ea-cpp-games/AGENTS.md` — workspace rules.
+- **Constitution** at `output/ea-cpp-games/specs/constitution.md` — 8 non-negotiable articles.
+- **Bug catalog** at `output/ea-cpp-games/fixtures/seeded-bugs.md`.
+
+## Hard constraints
+
+1. **No std:: containers** in committed code. Use EASTL equivalents.
+2. **No exceptions, no RTTI.** Compiled with `-fno-exceptions -fno-rtti`.
+3. **Allocator-aware.** Every container takes an explicit `engine_demo::allocator`.
+4. **Test-first.** Always enable the DISABLED\_ regression test BEFORE applying the fix.
+5. **HITL gates.** Pause for human approval between diagnosis and fix.
+
+## Four-phase workflow
+
+### Phase 1: OBSERVE
+
+- Read the bug report from `fixtures/bug-reports/BUG-XXX.md`.
+- Read the source file and its header.
+- State the symptom in one sentence.
+
+### Phase 2: REPRODUCE
+
+- Find the DISABLED\_ regression test in `tests/engine_demo/`.
+- Enable it by removing the DISABLED\_ prefix.
+- Run: `ctest --preset default-debug --output-on-failure -R <test_name>`
+- Report: test passes or fails, and why.
+
+### Phase 3: FIX
+
+- Propose the minimal fix that resolves the bug.
+- Cite which constitutional articles are satisfied.
+- Apply the fix using editFile.
+
+### Phase 4: VERIFY
+
+- Rerun the regression test.
+- Confirm it passes.
+- Run the full test suite to check for regressions.
+
+## Output format
+
+For each phase, output:
+
+```text
+## Phase N: <PHASE_NAME>
+**Action:** <what you did>
+**Result:** <what happened>
+**Constitutional compliance:** <articles checked>
+```
+````
+
+## 1f. Invoking the Agent — BUG-004 (Non-determinism)
+
+### Prompt
+
+```text
+@logic-bug-planner Resolve BUG-004 — the constraint solver depends on hash-map
+iteration order, causing non-deterministic replay divergence.
+```
+
+> ⚠️ Model-drift note: Exact output may vary across Copilot model updates.
+> The structure and reasoning pattern should match.
+
+```text
+## Phase 1: OBSERVE
+
+**Action:** Read `fixtures/bug-reports/BUG-004.md` and `src/engine_demo/physics/constraint.cpp`.
+
+**Result:** The constraint solver's `solve()` method iterates constraints in vector order
+(deterministic) but reads body state via `m_bodies.find(id)` on an `eastl::hash_map`.
+Hash-map traversal order is not guaranteed across runs. When constraint projections read
+body state in different orders, the solver converges to slightly different positions
+(O(1e-9) per iteration, accumulating across frames).
+
+**Symptom:** Two solvers with identical bodies and constraints inserted in opposite orders
+produce divergent positions after 8 iterations.
+
+**Constitutional compliance:** Article 5 (determinism) is violated — iteration order over
+`eastl::hash_map` is not deterministic.
+
+---
+
+## Phase 2: REPRODUCE
+
+**Action:** Enable `DISABLED_solve_is_deterministic_across_construction_orders` in
+`tests/engine_demo/test_constraint.cpp`.
+
+**Result:** The test is currently a stub (`SUCCEED()`). To properly reproduce, the test
+needs to:
+1. Build two solvers with identical bodies inserted in opposite orders.
+2. Add identical constraints to both.
+3. Run solve(8) on both.
+4. Assert exact-match positions.
+
+**HITL Gate:** The existing test stub needs to be replaced with a proper reproduction
+test. Shall I write the full test?
+
+---
+
+## Phase 3: FIX (pending human approval)
+
+**Proposed fix:**
+1. Sort constraints once at insertion by `(min(a, b), max(a, b))`.
+2. Build a deterministic dense index of bodies at solver setup (e.g., `eastl::vector<body*>`
+   sorted by body ID).
+3. In `solve()`, read body state through the dense index instead of hash-map lookup.
+
+**Constitutional compliance:**
+- Article 3 (EASTL-first): Using `eastl::vector` for the dense index. ✓
+- Article 4 (Allocator-aware): Dense index uses `m_alloc`. ✓
+- Article 5 (Determinism): Sorted constraints + dense index → deterministic. ✓
+- Article 6 (Real-time): Dense index is built once at setup, not per-frame. ✓
+
+**Waiting for human approval before applying.**
+
+---
+
+## Phase 4: VERIFY (pending)
+
+Will run after fix is approved and applied:
+- `ctest --preset default-debug --output-on-failure -R test_constraint`
+- Full suite: `ctest --preset default-debug --output-on-failure`
+```
+
+## 1g. Exercise: Build the Agent from Scratch
+
+**Time:** 15 min
+
+### Step 1: Review the agent file
+
+> **Do:** Open the existing `.github/agents/logic-bug-planner.agent.md` and confirm its content matches the agent definition in 1e. (The file ships with the workspace — review and confirm it rather than recreating it.)
+
+### Step 2: Test with a simple bug
+
+```text
+@logic-bug-planner Analyze BUG-006 — the frame_budget rolling window double-counts
+on warm-up. Walk through all four phases.
+```
+
+> ⚠️ Model-drift note: Exact output may vary across Copilot model updates.
+> The structure and reasoning pattern should match.
+
+````text
+## Phase 1: OBSERVE
+
+**Action:** Read `src/engine_demo/frame_budget.cpp` and `include/engine_demo/frame_budget.h`.
+
+**Result:** `record_sample()` writes at `m_index` and post-increments. `rolling_average()`
+iterates `[0, m_count)` — but on warm-up, slots beyond the written range contain stale
+zeros. The average is diluted by unwritten slots.
+
+**Symptom:** After recording samples [2.0, 4.0, 6.0] in a window of size 4, the rolling
+average should be (2+4+6)/3 = 4.0, but the code may include a stale zero from slot 3.
+
+---
+
+## Phase 2: REPRODUCE
+
+**Action:** Enable `DISABLED_first_sample_is_not_double_counted_on_warmup` in
+`tests/engine_demo/test_frame_budget.cpp`.
+
+**Result:** Running `ctest -R test_frame_budget` — the test PASSES as seeded: a single sample of
+10.0 yields `rolling_average() == 10.0`, because `m_count` is 1 and only the written
+slot is summed (the backing array is zero-initialized). BUG-006 does **not** reproduce
+in the seeded tree — this is a deliberate *non-reproducing* hypothesis. To make it fail
+you would first reseed `rolling_average()` to iterate the full fixed window instead of
+`[0, m_count)`.
+
+---
+
+## Phase 3: FIX
+
+**Proposed fix:** Change `rolling_average()` to iterate only the most-recent `m_count`
+samples starting from `(m_index - m_count + m_window_size) % m_window_size`:
+
+```cpp no-compile
+double frame_budget::rolling_average() const noexcept {
+    if (m_count == 0) return 0.0;
+    double sum = 0.0;
+    for (std::size_t i = 0; i < m_count; ++i) {
+        const std::size_t slot = (m_index - m_count + i + m_window_size) % m_window_size;
+        sum += m_samples[slot];
+    }
+    return sum / static_cast<double>(m_count);
+}
+```
+
+**Constitutional compliance:** Article 5 (determinism) ✓, Article 6 (real-time, no alloc) ✓.
+
+````
+
+## 1h. Extension — BUG-008 (Padding/memcmp)
+
+```text
+@logic-bug-planner Resolve BUG-008 — snapshot_equals uses memcmp on a struct with
+11 bytes of padding. Independently constructed snapshots with identical values may
+compare as unequal.
+```
+
+> ⚠️ Model-drift note: Exact output may vary across Copilot model updates.
+> The structure and reasoning pattern should match.
+
+````text
+## Phase 1: OBSERVE
+
+**Action:** Read `src/engine_demo/sim/replay_state.cpp` and `include/engine_demo/sim/replay_state.h`.
+
+**Result:** `replay_snapshot` has this layout (LP64):
+  offset  0: flags         (uint8_t, 1 byte)
+  offset  1: [7 bytes PADDING — alignment for double]
+  offset  8: position_x    (double, 8 bytes)
+  offset 16: position_y    (double, 8 bytes)
+  offset 24: frame_number  (uint32_t, 4 bytes)
+  offset 28: [4 bytes PADDING — alignment for double]
+  offset 32: velocity_x    (double, 8 bytes)
+  offset 40: velocity_y    (double, 8 bytes)
+  total: 48 bytes (sizeof), but only 37 bytes of member data → 11 bytes padding.
+
+`snapshot_equals()` uses `std::memcmp(&a, &b, sizeof(replay_snapshot))` which compares
+ALL 48 bytes including the 11 padding bytes. Padding is uninitialized when constructing
+on the stack without `memset` → comparison result depends on prior stack contents.
+
+**Constitutional violation:** Article 5 (determinism) — comparison result depends on
+memory state, not logical state.
+
+---
+
+## Phase 2: REPRODUCE
+
+**Action:** Enable `DISABLED_padding_does_not_affect_comparison` in
+`tests/engine_demo/test_replay_state.cpp`.
+
+The test deliberately dirties the stack between two `make_snapshot()` calls with different
+byte patterns (0xCC, 0xDD) to maximize the chance of differing padding bytes.
+
+**Result:** Test FAILS: `snapshot_equals` returns false for logically-equal snapshots.
+
+---
+
+## Phase 3: FIX
+
+**Proposed fix:** Replace memcmp with member-wise comparison:
+
+```cpp no-compile
+bool snapshot_equals(const replay_snapshot& a, const replay_snapshot& b) noexcept {
+    return a.flags == b.flags
+        && a.position_x == b.position_x
+        && a.position_y == b.position_y
+        && a.frame_number == b.frame_number
+        && a.velocity_x == b.velocity_x
+        && a.velocity_y == b.velocity_y;
+}
+```
+
+**Why not memset-zero?** Member-wise comparison is:
+
+- Immune to future member reordering.
+- Self-documenting (each field is visible).
+- Verifiable with `std::has_unique_object_representations_v<T>` — which would return
+  false for this struct due to padding.
+
+**Constitutional compliance:** Article 5 ✓ (deterministic comparison), Article 1 ✓ (no exceptions).
+
+````
+
+## 1i. Model Tiers — Premium Lead, Cheaper Follow-Through
+
+> **Say:** "You just saw the full-power agentic resolver on a premium model. For the rest of
+> the workshop, the routine bug work runs on a **cheaper** model — same workflow, a fraction
+> of the cost."
+
+| Tier    | Agent                     | Model                | Use it for                                               |
+| ------- | ------------------------- | -------------------- | -------------------------------------------------------- |
+| Premium | `logic-bug-planner`       | Sonnet-class default | This Section 1 agentic lead — demos and net-new analysis |
+| Cheaper | `logic-bug-resolver-lite` | Claude Haiku 4.5     | Sections 3–5 bug work — the skill carries the rules      |
+
+> The cheaper `logic-bug-resolver-lite` agent and the `logic-bug-triage` skill it loads are
+> detailed in [Section 7](#section-7--new-copilot-capabilities-loops-skills--cheaper-models-static-guide-15-min).
+> Each bug section below opens with a 💵 **Model tier** callout naming which agent to use.
+
+---
+
 ## Section 2 — Overall Logic Resolver Walkthrough (~15 min)
 
 **Format: STATIC GUIDE** — expected Copilot output included inline.
@@ -630,6 +959,12 @@ This enforces the constitutional Article 7 mandate: test-first workflow.
 ## Section 3 — Context Foundation (~25 min)
 
 **Format: STATIC GUIDE** — expected Copilot output included inline.
+
+> 💵 **Model tier:** Resolve this section's BUG-009 analysis with the cheaper
+> `logic-bug-resolver-lite` agent on **Claude Haiku 4.5** — the `logic-bug-triage` skill
+> supplies the constitution rules and false-positive map. Reserve the premium
+> `logic-bug-planner` for the Section 1 agentic lead. See
+> [Section 7](#section-7--new-copilot-capabilities-loops-skills--cheaper-models-static-guide-15-min).
 
 ## Learning Objectives — Section 3
 
@@ -884,324 +1219,17 @@ that violate Articles 1-4 and require manual correction.
 
 ---
 
-## Section 4 — Copilot AI Custom Agents (~30 min)
+## Section 4 — Tree of Thought (ToT) Deep-Dive (~25 min)
 
 **Format: STATIC GUIDE** — expected Copilot output included inline.
+
+> 💵 **Model tier:** Run the BUG-004 / BUG-008 / BUG-010 reasoning in this section on the
+> cheaper `logic-bug-resolver-lite` agent (**Claude Haiku 4.5**) — the `logic-bug-triage`
+> skill carries the hypotheses and constraints. The premium `logic-bug-planner` stays
+> reserved for the Section 1 lead. See
+> [Section 7](#section-7--new-copilot-capabilities-loops-skills--cheaper-models-static-guide-15-min).
 
 ## Learning Objectives — Section 4
-
-1. Build a custom Copilot agent mode from scratch.
-2. Define agent instructions, tools, and workflow for systematic bug resolution.
-3. Test the agent against real seeded defects.
-
-> 🔧 **Section Setup** — confirm the agent is installed and the baseline is green. Paste into
-> the **Agent** panel with `@logic-bug-planner` selected:
-
-```text
-@logic-bug-planner
-Self-check before Section 4: confirm you are loaded and report (a) which constitution
-articles you enforce, (b) the observe→reproduce→fix→verify gate you follow, and
-(c) that `ctest --preset default-debug` in output/ea-cpp-games/ is green. Do not fix anything.
-```
-
-## 4a. Complete `logic-bug-planner.agent.md`
-
-> **Say:** "Instead of typing the same context attachments and workflow instructions into every prompt, we encode them into a custom agent mode. This is the 'logic-bug-planner' — a specialized Copilot agent that knows the constitution, knows the DISABLED\_ pattern, and follows a strict observe→reproduce→fix→verify workflow."
-
-Create file `.github/agents/logic-bug-planner.agent.md`:
-
-````markdown
----
-name: logic-bug-planner
-description: >
-  Systematic logic bug resolver for the engine_demo C++20 game-engine workspace.
-  Follows observe → reproduce → fix → verify workflow with constitutional compliance
-  checks at every step.
-tools:
-  - codebase
-  - terminal
-  - editFile
----
-
-# Logic Bug Planner
-
-You are an expert C++20 game-engine debugger working in the `output/ea-cpp-games/`
-workspace. You resolve logic bugs using a strict four-phase workflow.
-
-## Context (always loaded)
-
-- **AGENTS.md** at `output/ea-cpp-games/AGENTS.md` — workspace rules.
-- **Constitution** at `output/ea-cpp-games/specs/constitution.md` — 8 non-negotiable articles.
-- **Bug catalog** at `output/ea-cpp-games/fixtures/seeded-bugs.md`.
-
-## Hard constraints
-
-1. **No std:: containers** in committed code. Use EASTL equivalents.
-2. **No exceptions, no RTTI.** Compiled with `-fno-exceptions -fno-rtti`.
-3. **Allocator-aware.** Every container takes an explicit `engine_demo::allocator`.
-4. **Test-first.** Always enable the DISABLED\_ regression test BEFORE applying the fix.
-5. **HITL gates.** Pause for human approval between diagnosis and fix.
-
-## Four-phase workflow
-
-### Phase 1: OBSERVE
-
-- Read the bug report from `fixtures/bug-reports/BUG-XXX.md`.
-- Read the source file and its header.
-- State the symptom in one sentence.
-
-### Phase 2: REPRODUCE
-
-- Find the DISABLED\_ regression test in `tests/engine_demo/`.
-- Enable it by removing the DISABLED\_ prefix.
-- Run: `ctest --preset default-debug --output-on-failure -R <test_name>`
-- Report: test passes or fails, and why.
-
-### Phase 3: FIX
-
-- Propose the minimal fix that resolves the bug.
-- Cite which constitutional articles are satisfied.
-- Apply the fix using editFile.
-
-### Phase 4: VERIFY
-
-- Rerun the regression test.
-- Confirm it passes.
-- Run the full test suite to check for regressions.
-
-## Output format
-
-For each phase, output:
-
-```text
-## Phase N: <PHASE_NAME>
-**Action:** <what you did>
-**Result:** <what happened>
-**Constitutional compliance:** <articles checked>
-```
-````
-
-## 4b. Invoking the Agent — BUG-004 (Non-determinism)
-
-### Prompt
-
-```text
-@logic-bug-planner Resolve BUG-004 — the constraint solver depends on hash-map
-iteration order, causing non-deterministic replay divergence.
-```
-
-> ⚠️ Model-drift note: Exact output may vary across Copilot model updates.
-> The structure and reasoning pattern should match.
-
-```text
-## Phase 1: OBSERVE
-
-**Action:** Read `fixtures/bug-reports/BUG-004.md` and `src/engine_demo/physics/constraint.cpp`.
-
-**Result:** The constraint solver's `solve()` method iterates constraints in vector order
-(deterministic) but reads body state via `m_bodies.find(id)` on an `eastl::hash_map`.
-Hash-map traversal order is not guaranteed across runs. When constraint projections read
-body state in different orders, the solver converges to slightly different positions
-(O(1e-9) per iteration, accumulating across frames).
-
-**Symptom:** Two solvers with identical bodies and constraints inserted in opposite orders
-produce divergent positions after 8 iterations.
-
-**Constitutional compliance:** Article 5 (determinism) is violated — iteration order over
-`eastl::hash_map` is not deterministic.
-
----
-
-## Phase 2: REPRODUCE
-
-**Action:** Enable `DISABLED_solve_is_deterministic_across_construction_orders` in
-`tests/engine_demo/test_constraint.cpp`.
-
-**Result:** The test is currently a stub (`SUCCEED()`). To properly reproduce, the test
-needs to:
-1. Build two solvers with identical bodies inserted in opposite orders.
-2. Add identical constraints to both.
-3. Run solve(8) on both.
-4. Assert exact-match positions.
-
-**HITL Gate:** The existing test stub needs to be replaced with a proper reproduction
-test. Shall I write the full test?
-
----
-
-## Phase 3: FIX (pending human approval)
-
-**Proposed fix:**
-1. Sort constraints once at insertion by `(min(a, b), max(a, b))`.
-2. Build a deterministic dense index of bodies at solver setup (e.g., `eastl::vector<body*>`
-   sorted by body ID).
-3. In `solve()`, read body state through the dense index instead of hash-map lookup.
-
-**Constitutional compliance:**
-- Article 3 (EASTL-first): Using `eastl::vector` for the dense index. ✓
-- Article 4 (Allocator-aware): Dense index uses `m_alloc`. ✓
-- Article 5 (Determinism): Sorted constraints + dense index → deterministic. ✓
-- Article 6 (Real-time): Dense index is built once at setup, not per-frame. ✓
-
-**Waiting for human approval before applying.**
-
----
-
-## Phase 4: VERIFY (pending)
-
-Will run after fix is approved and applied:
-- `ctest --preset default-debug --output-on-failure -R test_constraint`
-- Full suite: `ctest --preset default-debug --output-on-failure`
-```
-
-## 4c. Exercise: Build the Agent from Scratch
-
-**Time:** 15 min
-
-### Step 1: Review the agent file
-
-> **Do:** Open the existing `.github/agents/logic-bug-planner.agent.md` and confirm its content matches Section 4a. (The file ships with the workspace — review and confirm it rather than recreating it.)
-
-### Step 2: Test with a simple bug
-
-```text
-@logic-bug-planner Analyze BUG-006 — the frame_budget rolling window double-counts
-on warm-up. Walk through all four phases.
-```
-
-> ⚠️ Model-drift note: Exact output may vary across Copilot model updates.
-> The structure and reasoning pattern should match.
-
-````text
-## Phase 1: OBSERVE
-
-**Action:** Read `src/engine_demo/frame_budget.cpp` and `include/engine_demo/frame_budget.h`.
-
-**Result:** `record_sample()` writes at `m_index` and post-increments. `rolling_average()`
-iterates `[0, m_count)` — but on warm-up, slots beyond the written range contain stale
-zeros. The average is diluted by unwritten slots.
-
-**Symptom:** After recording samples [2.0, 4.0, 6.0] in a window of size 4, the rolling
-average should be (2+4+6)/3 = 4.0, but the code may include a stale zero from slot 3.
-
----
-
-## Phase 2: REPRODUCE
-
-**Action:** Enable `DISABLED_first_sample_is_not_double_counted_on_warmup` in
-`tests/engine_demo/test_frame_budget.cpp`.
-
-**Result:** Running `ctest -R test_frame_budget` — the test PASSES as seeded: a single sample of
-10.0 yields `rolling_average() == 10.0`, because `m_count` is 1 and only the written
-slot is summed (the backing array is zero-initialized). BUG-006 does **not** reproduce
-in the seeded tree — this is a deliberate *non-reproducing* hypothesis. To make it fail
-you would first reseed `rolling_average()` to iterate the full fixed window instead of
-`[0, m_count)`.
-
----
-
-## Phase 3: FIX
-
-**Proposed fix:** Change `rolling_average()` to iterate only the most-recent `m_count`
-samples starting from `(m_index - m_count + m_window_size) % m_window_size`:
-
-```cpp no-compile
-double frame_budget::rolling_average() const noexcept {
-    if (m_count == 0) return 0.0;
-    double sum = 0.0;
-    for (std::size_t i = 0; i < m_count; ++i) {
-        const std::size_t slot = (m_index - m_count + i + m_window_size) % m_window_size;
-        sum += m_samples[slot];
-    }
-    return sum / static_cast<double>(m_count);
-}
-```
-
-**Constitutional compliance:** Article 5 (determinism) ✓, Article 6 (real-time, no alloc) ✓.
-
-````
-
-## 4d. Extension — BUG-008 (Padding/memcmp)
-
-```text
-@logic-bug-planner Resolve BUG-008 — snapshot_equals uses memcmp on a struct with
-11 bytes of padding. Independently constructed snapshots with identical values may
-compare as unequal.
-```
-
-> ⚠️ Model-drift note: Exact output may vary across Copilot model updates.
-> The structure and reasoning pattern should match.
-
-````text
-## Phase 1: OBSERVE
-
-**Action:** Read `src/engine_demo/sim/replay_state.cpp` and `include/engine_demo/sim/replay_state.h`.
-
-**Result:** `replay_snapshot` has this layout (LP64):
-  offset  0: flags         (uint8_t, 1 byte)
-  offset  1: [7 bytes PADDING — alignment for double]
-  offset  8: position_x    (double, 8 bytes)
-  offset 16: position_y    (double, 8 bytes)
-  offset 24: frame_number  (uint32_t, 4 bytes)
-  offset 28: [4 bytes PADDING — alignment for double]
-  offset 32: velocity_x    (double, 8 bytes)
-  offset 40: velocity_y    (double, 8 bytes)
-  total: 48 bytes (sizeof), but only 37 bytes of member data → 11 bytes padding.
-
-`snapshot_equals()` uses `std::memcmp(&a, &b, sizeof(replay_snapshot))` which compares
-ALL 48 bytes including the 11 padding bytes. Padding is uninitialized when constructing
-on the stack without `memset` → comparison result depends on prior stack contents.
-
-**Constitutional violation:** Article 5 (determinism) — comparison result depends on
-memory state, not logical state.
-
----
-
-## Phase 2: REPRODUCE
-
-**Action:** Enable `DISABLED_padding_does_not_affect_comparison` in
-`tests/engine_demo/test_replay_state.cpp`.
-
-The test deliberately dirties the stack between two `make_snapshot()` calls with different
-byte patterns (0xCC, 0xDD) to maximize the chance of differing padding bytes.
-
-**Result:** Test FAILS: `snapshot_equals` returns false for logically-equal snapshots.
-
----
-
-## Phase 3: FIX
-
-**Proposed fix:** Replace memcmp with member-wise comparison:
-
-```cpp no-compile
-bool snapshot_equals(const replay_snapshot& a, const replay_snapshot& b) noexcept {
-    return a.flags == b.flags
-        && a.position_x == b.position_x
-        && a.position_y == b.position_y
-        && a.frame_number == b.frame_number
-        && a.velocity_x == b.velocity_x
-        && a.velocity_y == b.velocity_y;
-}
-```
-
-**Why not memset-zero?** Member-wise comparison is:
-
-- Immune to future member reordering.
-- Self-documenting (each field is visible).
-- Verifiable with `std::has_unique_object_representations_v<T>` — which would return
-  false for this struct due to padding.
-
-**Constitutional compliance:** Article 5 ✓ (deterministic comparison), Article 1 ✓ (no exceptions).
-
-````
-
----
-
-## Section 5 — Tree of Thought (ToT) Deep-Dive (~25 min)
-
-**Format: STATIC GUIDE** — expected Copilot output included inline.
-
-## Learning Objectives — Section 5
 
 1. Apply ToT prompting to generate and evaluate multiple hypotheses.
 2. Compare CoT vs. ToT outputs to see when parallel reasoning adds value.
@@ -1212,11 +1240,11 @@ bool snapshot_equals(const replay_snapshot& a, const replay_snapshot& b) noexcep
 
 ```text
 Open the BUG-004 source and header from output/ea-cpp-games/ (the non-determinism /
-trace-digest bug) plus specs/constitution.md so I can follow the Section 5 ToT analysis.
+trace-digest bug) plus specs/constitution.md so I can follow the Section 4 ToT analysis.
 List the exact file paths you opened, then wait. Do not propose fixes yet.
 ```
 
-## 5a. Full ToT Analysis — BUG-004 (Non-determinism)
+## 4a. Full ToT Analysis — BUG-004 (Non-determinism)
 
 ### Prompt
 
@@ -1324,7 +1352,7 @@ deterministic dense body index (sorted `eastl::vector<body*>`) at solver setup.
 Read body state through the dense index instead of hash-map lookup.
 ```
 
-## 5b. CoT vs. ToT Comparison — BUG-010 (Signed-to-Unsigned)
+## 4b. CoT vs. ToT Comparison — BUG-010 (Signed-to-Unsigned)
 
 ### CoT Prompt
 
@@ -1423,7 +1451,7 @@ risks exist.
 
 > **Say:** "CoT traces one path correctly. ToT catches the design-level fragility that CoT misses — the sentinel anti-pattern and the maintenance risk. For simple bugs, CoT is faster. For subtle bugs where the root cause is a design decision, ToT adds genuine value."
 
-## 5c. Exercise: Apply ToT to BUG-008 (memcmp Padding)
+## 4c. Exercise: Apply ToT to BUG-008 (memcmp Padding)
 
 **Time:** 10 min
 
@@ -1443,11 +1471,17 @@ Evaluate all hypotheses and converge on the root cause.
 
 ---
 
-## Section 6 — Human-in-the-Loop (HITL) (~25 min)
+## Section 5 — Human-in-the-Loop (HITL) (~25 min)
 
 **Format: STATIC GUIDE** — expected Copilot output included inline.
 
-## Learning Objectives — Section 6
+> 💵 **Model tier:** The BUG-002 / BUG-007 gate walkthrough runs fine on the cheaper
+> `logic-bug-resolver-lite` agent (**Claude Haiku 4.5**) backed by the `logic-bug-triage`
+> skill. Premium `logic-bug-planner` reasoning is still fine here if you want to showcase
+> gate-level judgment live. See
+> [Section 7](#section-7--new-copilot-capabilities-loops-skills--cheaper-models-static-guide-15-min).
+
+## Learning Objectives — Section 5
 
 1. Apply the four-gate HITL workflow to a real bug.
 2. Decide when to use HITL vs. fully autonomous vs. human-on-the-loop.
@@ -1458,14 +1492,14 @@ Evaluate all hypotheses and converge on the root cause.
 
 ```text
 @logic-bug-planner
-Section 6 prep for output/ea-cpp-games/, analysis-only:
+Section 5 prep for output/ea-cpp-games/, analysis-only:
 1. Confirm ./reset_workshop.sh reports READY (run it if unsure).
 2. Confirm long_run_does_not_drift (BUG-002) is DISABLED_ in test_game_loop.cpp.
 3. Confirm `ctest --preset default-debug` is green.
 Report PASS/FAIL per item. Do not apply any fix — the gates are walked interactively.
 ```
 
-## 6a. Four-Gate HITL Walkthrough — BUG-002
+## 5a. Four-Gate HITL Walkthrough — BUG-002
 
 ### Gate 1: Is the hypothesis plausible?
 
@@ -1590,7 +1624,7 @@ test verifies correctness over 3600 frames.
 
 **Instructor decision: ✅ Merge.**
 
-## 6b. Decision Matrix
+## 5b. Decision Matrix
 
 | Decision Mode         | Description                                          | Game-Engine Example                                                 |
 | --------------------- | ---------------------------------------------------- | ------------------------------------------------------------------- |
@@ -1611,7 +1645,7 @@ test verifies correctness over 3600 frames.
 - Test-only changes (no production code modified)
 - Changes verified by existing comprehensive test suites
 
-## 6c. Exercise: HITL Workflow for BUG-007 (Signed Overflow)
+## 5c. Exercise: HITL Workflow for BUG-007 (Signed Overflow)
 
 **Time:** 10 min
 
@@ -1715,11 +1749,11 @@ Analyze event_slot for concurrency defects. List all potential issues.
 
 ---
 
-## Section 7 — Appendix: Intermediate Developer Bridge
+## Section 6 — Appendix: Intermediate Developer Bridge
 
-## 7a. Float vs. Double Precision
+## 6a. Float vs. Double Precision
 
-**Supports:** Section 1 (BUG-002), Section 6 (HITL Gate 1)
+**Supports:** Section 1 (BUG-002), Section 5 (HITL Gate 1)
 
 IEEE 754 single-precision (float) has 24 bits of mantissa ≈ 7.2 decimal digits.
 IEEE 754 double-precision (double) has 53 bits of mantissa ≈ 15.9 decimal digits.
@@ -1744,7 +1778,7 @@ As double: error per step ≈ 1.0e-17; after 1800 steps, total error ≈ 1.8e-14
 This is 8 orders of magnitude below the step size — no observable drift.
 ```
 
-## 7b. Signed Integer Overflow as Undefined Behavior
+## 6b. Signed Integer Overflow as Undefined Behavior
 
 **Supports:** Section 1 (BUG-007)
 
@@ -1782,9 +1816,9 @@ uint64_t x = 0;  // wraps at 2^64 ≈ 584 million years at 1ms
 x += delta;
 ```
 
-## 7c. Hash-Map Iteration Non-Determinism
+## 6c. Hash-Map Iteration Non-Determinism
 
-**Supports:** Section 5 (BUG-004)
+**Supports:** Section 4 (BUG-004)
 
 `eastl::hash_map` (like `std::unordered_map`) uses a hash table with buckets. The iteration order depends on:
 
@@ -1808,9 +1842,9 @@ the intermediate rounding differs by O(ulp).
 
 **Fix:** Use a sorted container or build a deterministic index from the hash map at setup time.
 
-## 7d. Struct Padding and memcmp
+## 6d. Struct Padding and memcmp
 
-**Supports:** Section 5 (BUG-008)
+**Supports:** Section 4 (BUG-008)
 
 C++ requires members to be aligned to their natural alignment:
 
@@ -1841,9 +1875,9 @@ Check: std::has_unique_object_representations_v<replay_snapshot>
   → false (has padding) → memcmp is UNSAFE for equality comparison.
 ```
 
-## 7e. C++ Memory Model — Acquire/Release
+## 6e. C++ Memory Model — Acquire/Release
 
-**Supports:** Section 3 (BUG-009), Section 6 (HITL)
+**Supports:** Section 3 (BUG-009), Section 5 (HITL)
 
 ```text
 Timeline diagram — two threads:
@@ -1878,9 +1912,9 @@ With RELEASE/ACQUIRE: The store-release "publishes" all prior writes.
 - **ARM:** Weakly ordered. Stores can be reordered. Relaxed is genuinely relaxed.
 - **C++ standard:** Code must be correct per the abstract machine, not per hardware.
 
-## 7f. Signed-to-Unsigned Implicit Promotion
+## 6f. Signed-to-Unsigned Implicit Promotion
 
-**Supports:** Section 5 (BUG-010)
+**Supports:** Section 4 (BUG-010)
 
 When a signed integer is compared with or converted to an unsigned integer of equal or greater rank, the signed value is converted to unsigned:
 
@@ -1898,7 +1932,7 @@ if (index < count)  // → if (18446744073709551615 < 4) → FALSE
 
 **Compiler warning:** `-Wsign-compare` catches this. It's commonly suppressed in game codebases — which is why this bug class is so prevalent.
 
-## 7g. EASTL vs. std:: Rationale
+## 6g. EASTL vs. std:: Rationale
 
 **Supports:** Section 3
 
@@ -1913,7 +1947,7 @@ if (index < count)  // → if (18446744073709551615 < 4) → FALSE
 
 **Why Copilot needs to know:** Without AGENTS.md telling Copilot to use EASTL, it defaults to `std::vector`, `std::string`, etc. — which won't compile in this codebase (`-fno-exceptions` → `std::bad_alloc` is undefined).
 
-## 7h. Constitutional Architecture
+## 6h. Constitutional Architecture
 
 **Supports:** Section 3
 
@@ -1955,10 +1989,10 @@ The constitution exists to prevent classes of bugs that are catastrophic in game
 
 ---
 
-## Section 8 — New Copilot Capabilities: Loops, Skills & Cheaper Models (STATIC GUIDE, ~15 min)
+## Section 7 — New Copilot Capabilities: Loops, Skills & Cheaper Models (STATIC GUIDE, ~15 min)
 
-> **Format:** Static guide. Read-along, then the optional hands-on in 8c.
-> **Why it's here:** Sections 1–6 resolve **one** bug at a time on a premium model. This
+> **Format:** Static guide. Read-along, then the optional hands-on in 7c.
+> **Why it's here:** Sections 1–5 resolve **one** bug at a time on a premium model. This
 > section shows three newer Copilot capabilities that change the economics: **agentic loops**
 > (analyze many bugs in one run), **Agent Skills** (package the procedure so it's reusable),
 > and **model selection** (run that packaged procedure on a cheaper model without losing
@@ -1969,18 +2003,18 @@ The constitution exists to prevent classes of bugs that are catastrophic in game
 > generates around them will differ.
 
 > 🔧 **Section Setup** — confirm the sweep prompt and a clean baseline before the optional
-> hands-on in 8c. Paste into the **Agent** panel:
+> hands-on in 7c. Paste into the **Agent** panel:
 
 ```text
 @logic-bug-planner
-Section 8 prep for output/ea-cpp-games/, analysis-only:
+Section 7 prep for output/ea-cpp-games/, analysis-only:
 1. Confirm ./reset_workshop.sh reports READY (run it if unsure).
 2. Confirm the sweep prompt exists: .github/prompts/logic-bug-sweep.prompt.md.
 3. Confirm `ctest --preset default-debug` is green.
-Report PASS/FAIL per item. Do not fix any bug — Section 8 is analysis + economics only.
+Report PASS/FAIL per item. Do not fix any bug — Section 7 is analysis + economics only.
 ```
 
-### 8a — Agentic loops: one run, many bugs
+### 7a — Agentic loops: one run, many bugs
 
 The single-bug workflow is great for depth but does not scale to a backlog. An **agentic
 loop** iterates a fixed procedure over a list of inputs. We ship one as a prompt file:
@@ -1999,7 +2033,7 @@ BUG-010  | Unstarted interp reads OOB       | 7 Test-first      | real    | yes 
 ```
 
 Why analysis-only? A batch that **fixes** as it goes removes the per-fix HITL checkpoint that
-Section 6 spent 25 minutes justifying — and physics (BUG-004) and replay (BUG-008/009) fixes
+Section 5 spent 25 minutes justifying — and physics (BUG-004) and replay (BUG-008/009) fixes
 are exactly the ones that need human sign-off. The loop does the tedious, safe part
 (reproduce + triage) at scale and hands the judgment calls back to you, one at a time.
 
@@ -2007,9 +2041,9 @@ are exactly the ones that need human sign-off. The loop does the tedious, safe p
 prompt restores every `DISABLED_` prefix it touched, so the tree stays clean — verify with
 `git status --porcelain output/ea-cpp-games/src` (empty = no source was edited).
 
-### 8b — A minimized, skill-based agent on a cheaper model
+### 7b — A minimized, skill-based agent on a cheaper model
 
-Section 4's `logic-bug-planner` agent is powerful but **heavy**: its `.agent.md` body is
+Section 1's `logic-bug-planner` agent is powerful but **heavy**: its `.agent.md` body is
 ~80 lines because it carries all the rules, the four-phase contract, and the ctest commands
 inline. Every invocation re-sends that context to a premium model.
 
@@ -2048,7 +2082,7 @@ The takeaway: **skills move knowledge out of the model and into reusable files.*
 knowledge is external, the model's job shrinks — and a smaller, cheaper model becomes
 sufficient.
 
-### 8c — Try it (optional, ~5 min)
+### 7c — Try it (optional, ~5 min)
 
 1. **Lite agent on a cheap model.** Switch the chat model to **Claude Haiku 4.5**, select the
    `logic-bug-resolver-lite` agent, and ask it to `Resolve BUG-006`. Confirm it auto-loads the
@@ -2062,18 +2096,17 @@ sufficient.
 
 ## Timing Summary
 
-| Section | Title                                                    | Format       | Duration            |
-| ------- | -------------------------------------------------------- | ------------ | ------------------- |
-| 1       | AI Agent Resolving Logic Bugs                            | LIVE DEMO    | ~20 min             |
-| 2       | Overall Logic Resolver Walkthrough                       | Static Guide | ~15 min             |
-| 3       | Context Foundation                                       | Static Guide | ~25 min             |
-| 4       | Copilot AI Custom Agents                                 | Static Guide | ~30 min             |
-| 5       | Tree of Thought Deep-Dive                                | Static Guide | ~25 min             |
-| 6       | Human-in-the-Loop                                        | Static Guide | ~25 min             |
-| 7       | Appendix: Intermediate Developer Bridge                  | Reference    | ~10 min (as needed) |
-| 8       | New Copilot Capabilities: Loops, Skills & Cheaper Models | Static Guide | ~15 min             |
-| —       | **Buffer / Q&A**                                         | —            | ~10–30 min          |
-| —       | **Total**                                                | —            | **165–195 min**     |
+| Section | Title                                                    | Format            | Duration            |
+| ------- | -------------------------------------------------------- | ----------------- | ------------------- |
+| 1       | The Agentic Logic Bug Resolver (demo + custom agent)     | LIVE DEMO + Guide | ~50 min             |
+| 2       | Overall Logic Resolver Walkthrough                       | Static Guide      | ~15 min             |
+| 3       | Context Foundation                                       | Static Guide      | ~25 min             |
+| 4       | Tree of Thought Deep-Dive                                | Static Guide      | ~25 min             |
+| 5       | Human-in-the-Loop                                        | Static Guide      | ~25 min             |
+| 6       | Appendix: Intermediate Developer Bridge                  | Reference         | ~10 min (as needed) |
+| 7       | New Copilot Capabilities: Loops, Skills & Cheaper Models | Static Guide      | ~15 min             |
+| —       | **Buffer / Q&A**                                         | —                 | ~10–30 min          |
+| —       | **Total**                                                | —                 | **165–195 min**     |
 
 ---
 
@@ -2083,16 +2116,15 @@ sufficient.
 
 ### Section Ratings (1–5 scale)
 
-| #   | Question                                                                                           | 1   | 2   | 3   | 4   | 5   |
-| --- | -------------------------------------------------------------------------------------------------- | --- | --- | --- | --- | --- |
-| 1   | **Section 1 (Live Demo):** How effective was the live demo at showing the end-to-end workflow?     | ○   | ○   | ○   | ○   | ○   |
-| 2   | **Section 2 (Walkthrough):** How well do you understand the project structure and build system?    | ○   | ○   | ○   | ○   | ○   |
-| 3   | **Section 3 (Context):** How convinced are you that context layering improves Copilot output?      | ○   | ○   | ○   | ○   | ○   |
-| 4   | **Section 4 (Custom Agents):** Could you build a custom agent mode for your own codebase tomorrow? | ○   | ○   | ○   | ○   | ○   |
-| 5   | **Section 5 (ToT):** How confident are you applying Tree of Thought prompting to ambiguous bugs?   | ○   | ○   | ○   | ○   | ○   |
-| 6   | **Section 6 (HITL):** Do you understand when to use HITL vs. autonomous vs. human-on-the-loop?     | ○   | ○   | ○   | ○   | ○   |
-| 7   | **Section 8 (Loops/Skills/Models):** How ready are you to use loops, skills, and cheaper models?   | ○   | ○   | ○   | ○   | ○   |
-| 8   | **Overall:** How confident are you applying today's techniques to your day job?                    | ○   | ○   | ○   | ○   | ○   |
+| #   | Question                                                                                                                   | 1   | 2   | 3   | 4   | 5   |
+| --- | -------------------------------------------------------------------------------------------------------------------------- | --- | --- | --- | --- | --- |
+| 1   | **Section 1 (Agentic Resolver):** How effective was the live demo + custom-agent build at showing the end-to-end workflow? | ○   | ○   | ○   | ○   | ○   |
+| 2   | **Section 2 (Walkthrough):** How well do you understand the project structure and build system?                            | ○   | ○   | ○   | ○   | ○   |
+| 3   | **Section 3 (Context):** How convinced are you that context layering improves Copilot output?                              | ○   | ○   | ○   | ○   | ○   |
+| 4   | **Section 4 (ToT):** How confident are you applying Tree of Thought prompting to ambiguous bugs?                           | ○   | ○   | ○   | ○   | ○   |
+| 5   | **Section 5 (HITL):** Do you understand when to use HITL vs. autonomous vs. human-on-the-loop?                             | ○   | ○   | ○   | ○   | ○   |
+| 6   | **Section 7 (Loops/Skills/Models):** How ready are you to use loops, skills, and cheaper models?                           | ○   | ○   | ○   | ○   | ○   |
+| 7   | **Overall:** How confident are you applying today's techniques to your day job?                                            | ○   | ○   | ○   | ○   | ○   |
 
 ### Open Text
 
