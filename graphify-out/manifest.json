@@ -1,0 +1,892 @@
+{
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.vscode/settings.json": {
+    "mtime": 1781884751.0391312,
+    "ast_hash": "d7f2860a9690c1fb254024086c87f229",
+    "semantic_hash": "d7f2860a9690c1fb254024086c87f229"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/CMakePresets.json": {
+    "mtime": 1781873468.7632856,
+    "ast_hash": "7b14d21db15a773045d96c1617d8701a",
+    "semantic_hash": "7b14d21db15a773045d96c1617d8701a"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/poc/force_visible.h": {
+    "mtime": 1781288015.935449,
+    "ast_hash": "922620cfbc0d2362f7f302ebe26db8c4",
+    "semantic_hash": "922620cfbc0d2362f7f302ebe26db8c4"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/poc/force_visible.m": {
+    "mtime": 1781288015.9356844,
+    "ast_hash": "2c47f60342945b4a2a89d7490a240085",
+    "semantic_hash": "2c47f60342945b4a2a89d7490a240085"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/poc/hello.c": {
+    "mtime": 1781288015.9360566,
+    "ast_hash": "802ed042e981d159b1e05e6d0dfc27eb",
+    "semantic_hash": "802ed042e981d159b1e05e6d0dfc27eb"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/app.cpp": {
+    "mtime": 1781288015.9370022,
+    "ast_hash": "61732c45bfbc35cf9997185698d2813c",
+    "semantic_hash": "61732c45bfbc35cf9997185698d2813c"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/app.h": {
+    "mtime": 1781288015.937185,
+    "ast_hash": "6008ee59ef061b9b25f5f4815a00b2b2",
+    "semantic_hash": "6008ee59ef061b9b25f5f4815a00b2b2"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/dwm_flush.cpp": {
+    "mtime": 1781288015.9373374,
+    "ast_hash": "e5b4f518d062f5015a6a760f6239e3b9",
+    "semantic_hash": "e5b4f518d062f5015a6a760f6239e3b9"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/force_visible.h": {
+    "mtime": 1781288015.937608,
+    "ast_hash": "f9e038731fd1556afdf924368b7c8833",
+    "semantic_hash": "f9e038731fd1556afdf924368b7c8833"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/force_visible.m": {
+    "mtime": 1781288015.9377496,
+    "ast_hash": "53dd8e201310fab3bda35d178c4371ae",
+    "semantic_hash": "53dd8e201310fab3bda35d178c4371ae"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/headless.cpp": {
+    "mtime": 1781288015.937878,
+    "ast_hash": "33a73932d42c3bb17bd184596fbf068f",
+    "semantic_hash": "33a73932d42c3bb17bd184596fbf068f"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/headless.h": {
+    "mtime": 1781288015.9379992,
+    "ast_hash": "66c50c56ae1d2bbcfd78590bae03891b",
+    "semantic_hash": "66c50c56ae1d2bbcfd78590bae03891b"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/main.cpp": {
+    "mtime": 1781288015.9382613,
+    "ast_hash": "3a49ab78a44e2f7538ba0ee51c79fc30",
+    "semantic_hash": "3a49ab78a44e2f7538ba0ee51c79fc30"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/platform_win_diag.cpp": {
+    "mtime": 1781288015.9384294,
+    "ast_hash": "718d66842ac267413ca9b9e467f78b3c",
+    "semantic_hash": "718d66842ac267413ca9b9e467f78b3c"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/platform_win_diag.h": {
+    "mtime": 1781288015.9386504,
+    "ast_hash": "d2283dfe8effb164b4abd320562446f0",
+    "semantic_hash": "d2283dfe8effb164b4abd320562446f0"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/scene.cpp": {
+    "mtime": 1781288015.939076,
+    "ast_hash": "d9ff468edfbd368adb622bda8e903cb0",
+    "semantic_hash": "d9ff468edfbd368adb622bda8e903cb0"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/scene.h": {
+    "mtime": 1781288015.9395862,
+    "ast_hash": "53bd94423f1947d78ff1f4685f019bdc",
+    "semantic_hash": "53bd94423f1947d78ff1f4685f019bdc"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/telemetry.cpp": {
+    "mtime": 1781288015.9399364,
+    "ast_hash": "d52620353fea85a3be78a470f380c70f",
+    "semantic_hash": "d52620353fea85a3be78a470f380c70f"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/telemetry.h": {
+    "mtime": 1781288015.9402218,
+    "ast_hash": "9defb68c0670361d3bf005c504394667",
+    "semantic_hash": "9defb68c0670361d3bf005c504394667"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/viewport.h": {
+    "mtime": 1781288015.9404652,
+    "ast_hash": "8ebe92c26efeddb905f3e1c9817aafe0",
+    "semantic_hash": "8ebe92c26efeddb905f3e1c9817aafe0"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/build_sandbox.ps1": {
+    "mtime": 1781288015.9406276,
+    "ast_hash": "df46f9c1d1de60d58caa2417d9fb6962",
+    "semantic_hash": "df46f9c1d1de60d58caa2417d9fb6962"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/check_pixels.ps1": {
+    "mtime": 1781288015.940891,
+    "ast_hash": "63537ac87dadd32f0fd3608604d56c4f",
+    "semantic_hash": "63537ac87dadd32f0fd3608604d56c4f"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/check_screenshot.ps1": {
+    "mtime": 1781288015.9412565,
+    "ast_hash": "5278fc13e3537b8aab1d57e72a9e68fa",
+    "semantic_hash": "5278fc13e3537b8aab1d57e72a9e68fa"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/clean_build.ps1": {
+    "mtime": 1781288015.9415357,
+    "ast_hash": "d01b47aceefc0d8668efac7ab86f26fb",
+    "semantic_hash": "d01b47aceefc0d8668efac7ab86f26fb"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/diag_interactive.ps1": {
+    "mtime": 1781288015.9423327,
+    "ast_hash": "a1fb64394ea1409069bd1262fdd3d4f4",
+    "semantic_hash": "a1fb64394ea1409069bd1262fdd3d4f4"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/crash_dumps/BUG-001/capture.ps1": {
+    "mtime": 1781288015.9453986,
+    "ast_hash": "bb7f1117a63fb3ffdbf0020ce51ca5bb",
+    "semantic_hash": "bb7f1117a63fb3ffdbf0020ce51ca5bb"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/crash_dumps/BUG-001/capture.sh": {
+    "mtime": 1781288015.9455698,
+    "ast_hash": "4772fc4e3dfeae096bb5a91e5b48603f",
+    "semantic_hash": "4772fc4e3dfeae096bb5a91e5b48603f"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/crash_dumps/BUG-001/repro.cpp": {
+    "mtime": 1781288015.9457397,
+    "ast_hash": "f0a268d897dbb8b205b1f9e06d4c3504",
+    "semantic_hash": "f0a268d897dbb8b205b1f9e06d4c3504"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/include/engine_demo/allocator.h": {
+    "mtime": 1781288015.946465,
+    "ast_hash": "a825a0b3ef239978c3b498702153d0e9",
+    "semantic_hash": "a825a0b3ef239978c3b498702153d0e9"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/include/engine_demo/ecs/world.h": {
+    "mtime": 1781288015.9470272,
+    "ast_hash": "3c476865879ebbb726e73998ed711200",
+    "semantic_hash": "3c476865879ebbb726e73998ed711200"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/include/engine_demo/frame_budget.h": {
+    "mtime": 1781288015.9471853,
+    "ast_hash": "6e2c1ce9074be9a4796b00ffe7d748db",
+    "semantic_hash": "6e2c1ce9074be9a4796b00ffe7d748db"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/include/engine_demo/physics/constraint.h": {
+    "mtime": 1781288015.947437,
+    "ast_hash": "e6948edf03219bbee84560a6c858959e",
+    "semantic_hash": "e6948edf03219bbee84560a6c858959e"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/include/engine_demo/sim/event_queue.h": {
+    "mtime": 1781288015.9476755,
+    "ast_hash": "63fa048c2e9035593d80c27463b291f3",
+    "semantic_hash": "63fa048c2e9035593d80c27463b291f3"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/include/engine_demo/sim/game_loop.h": {
+    "mtime": 1781893439.1017308,
+    "ast_hash": "3edd3b46f575439f6a26cd53d51ed44c",
+    "semantic_hash": "3edd3b46f575439f6a26cd53d51ed44c"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/include/engine_demo/sim/interpolator.h": {
+    "mtime": 1781288015.9484065,
+    "ast_hash": "5351975fa4924ebc300ab7ef72f01f69",
+    "semantic_hash": "5351975fa4924ebc300ab7ef72f01f69"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/include/engine_demo/sim/replay_state.h": {
+    "mtime": 1781288015.9487062,
+    "ast_hash": "b0dff07b41e3ed81b6f398131582343e",
+    "semantic_hash": "b0dff07b41e3ed81b6f398131582343e"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/include/engine_demo/sim/rng.h": {
+    "mtime": 1781288015.9488463,
+    "ast_hash": "e3cd398ada0326bce71d4da049769729",
+    "semantic_hash": "e3cd398ada0326bce71d4da049769729"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/include/engine_demo/sim/timer.h": {
+    "mtime": 1781893584.5936244,
+    "ast_hash": "418e7fb67b7f2aa875f25be18fcf31d8",
+    "semantic_hash": "418e7fb67b7f2aa875f25be18fcf31d8"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/reset_workshop.sh": {
+    "mtime": 1782071842.7980168,
+    "ast_hash": "ffe40095570e9a099f2d35e6de81d1df",
+    "semantic_hash": "ffe40095570e9a099f2d35e6de81d1df"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/run_capture.ps1": {
+    "mtime": 1781288015.949195,
+    "ast_hash": "bd7e863f9b6369e2ace6fef28b477166",
+    "semantic_hash": "bd7e863f9b6369e2ace6fef28b477166"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/sample_grid.ps1": {
+    "mtime": 1781288015.9493623,
+    "ast_hash": "6029471e2e8c4e570492d53cc9f2bd2f",
+    "semantic_hash": "6029471e2e8c4e570492d53cc9f2bd2f"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/sample_quadrant.ps1": {
+    "mtime": 1781288015.949507,
+    "ast_hash": "6bdbf98af90b8809400f0180c1abefa1",
+    "semantic_hash": "6bdbf98af90b8809400f0180c1abefa1"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/sample_quadrants.ps1": {
+    "mtime": 1781288015.9496703,
+    "ast_hash": "8e6f5151daf503e048fdde182af08f65",
+    "semantic_hash": "8e6f5151daf503e048fdde182af08f65"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/src/engine_demo/allocator.cpp": {
+    "mtime": 1781288015.9519625,
+    "ast_hash": "0f82fddb4e21b2fd01050da0f1152cd7",
+    "semantic_hash": "0f82fddb4e21b2fd01050da0f1152cd7"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/src/engine_demo/eastl_overrides.cpp": {
+    "mtime": 1781288015.9521134,
+    "ast_hash": "36fb78374a09091cc91cc302733d057e",
+    "semantic_hash": "36fb78374a09091cc91cc302733d057e"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/src/engine_demo/ecs/world.cpp": {
+    "mtime": 1781288015.952393,
+    "ast_hash": "3126829721d4cff358b2f930b0875425",
+    "semantic_hash": "3126829721d4cff358b2f930b0875425"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/src/engine_demo/frame_budget.cpp": {
+    "mtime": 1781288015.9525938,
+    "ast_hash": "9991e461dce644b7bcd60455a5847b7c",
+    "semantic_hash": "9991e461dce644b7bcd60455a5847b7c"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/src/engine_demo/physics/constraint.cpp": {
+    "mtime": 1781288015.9529724,
+    "ast_hash": "b5f43e74a4def246d7eb5462baabe48c",
+    "semantic_hash": "b5f43e74a4def246d7eb5462baabe48c"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/src/engine_demo/sim/event_queue.cpp": {
+    "mtime": 1781873468.766119,
+    "ast_hash": "f9fb0b0ad5dd12189a534583e7c134f3",
+    "semantic_hash": "f9fb0b0ad5dd12189a534583e7c134f3"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/src/engine_demo/sim/game_loop.cpp": {
+    "mtime": 1781893439.1027095,
+    "ast_hash": "a948814c431fddac4f6e64c3a1ef2e5b",
+    "semantic_hash": "a948814c431fddac4f6e64c3a1ef2e5b"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/src/engine_demo/sim/interpolator.cpp": {
+    "mtime": 1781288015.9536886,
+    "ast_hash": "0372552af6cc8591432d3c0b0035a0c9",
+    "semantic_hash": "0372552af6cc8591432d3c0b0035a0c9"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/src/engine_demo/sim/replay_state.cpp": {
+    "mtime": 1781288015.9538238,
+    "ast_hash": "ea28def7b169cea3309a78d03ee685a8",
+    "semantic_hash": "ea28def7b169cea3309a78d03ee685a8"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/src/engine_demo/sim/rng.cpp": {
+    "mtime": 1781288015.9539688,
+    "ast_hash": "3753e9216fd00043f7aee507186dd8d7",
+    "semantic_hash": "3753e9216fd00043f7aee507186dd8d7"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/src/engine_demo/sim/timer.cpp": {
+    "mtime": 1781893584.5943353,
+    "ast_hash": "82e515a4d739600b68274c892c501b37",
+    "semantic_hash": "82e515a4d739600b68274c892c501b37"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tests/engine_demo/test_allocator.cpp": {
+    "mtime": 1781893953.1117697,
+    "ast_hash": "0568db82e0df4ac0a41470cea2ce24ea",
+    "semantic_hash": "0568db82e0df4ac0a41470cea2ce24ea"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tests/engine_demo/test_constraint.cpp": {
+    "mtime": 1781893953.1123533,
+    "ast_hash": "a20e8ff7bcc60417fc0cb18e4b9be254",
+    "semantic_hash": "a20e8ff7bcc60417fc0cb18e4b9be254"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tests/engine_demo/test_event_queue.cpp": {
+    "mtime": 1781893953.1155472,
+    "ast_hash": "d3679c34cbe0989aca28ef17c7cfb729",
+    "semantic_hash": "d3679c34cbe0989aca28ef17c7cfb729"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tests/engine_demo/test_frame_budget.cpp": {
+    "mtime": 1781896657.0557275,
+    "ast_hash": "17e2289deec3ce4777a02944c2e1500e",
+    "semantic_hash": "17e2289deec3ce4777a02944c2e1500e"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tests/engine_demo/test_game_loop.cpp": {
+    "mtime": 1781893439.1078362,
+    "ast_hash": "c49c18727f473c603041fb04a63ffcbe",
+    "semantic_hash": "c49c18727f473c603041fb04a63ffcbe"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tests/engine_demo/test_interpolator.cpp": {
+    "mtime": 1781893953.1170797,
+    "ast_hash": "f70b57a05168e6709f5d9ae99c3651e0",
+    "semantic_hash": "f70b57a05168e6709f5d9ae99c3651e0"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tests/engine_demo/test_replay_state.cpp": {
+    "mtime": 1781896657.1251447,
+    "ast_hash": "529a7c634da21cf8338a6712f497ee09",
+    "semantic_hash": "529a7c634da21cf8338a6712f497ee09"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tests/engine_demo/test_rng.cpp": {
+    "mtime": 1781893953.1179788,
+    "ast_hash": "2fee384af8c3a468fab53941f8defa5e",
+    "semantic_hash": "2fee384af8c3a468fab53941f8defa5e"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tests/engine_demo/test_sandbox_render.cpp": {
+    "mtime": 1781288015.9571671,
+    "ast_hash": "1dc95f2e675c8ba6254da4e287df5cdf",
+    "semantic_hash": "1dc95f2e675c8ba6254da4e287df5cdf"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tests/engine_demo/test_timer.cpp": {
+    "mtime": 1782071842.8114545,
+    "ast_hash": "324a0283e73997347862eb1b45314e43",
+    "semantic_hash": "324a0283e73997347862eb1b45314e43"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tests/engine_demo/test_world.cpp": {
+    "mtime": 1781893953.118979,
+    "ast_hash": "3152d2b91d9310f5fe9560e1b8976cd9",
+    "semantic_hash": "3152d2b91d9310f5fe9560e1b8976cd9"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tools/crash-dump-mcp/package.json": {
+    "mtime": 1781288015.967454,
+    "ast_hash": "5cc4eb3958541b81671750b4464825ed",
+    "semantic_hash": "5cc4eb3958541b81671750b4464825ed"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tools/crash-dump-mcp/src/index.ts": {
+    "mtime": 1781288015.9682248,
+    "ast_hash": "c07c6b45e3495bde3cf214608e0d493c",
+    "semantic_hash": "c07c6b45e3495bde3cf214608e0d493c"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tools/crash-dump-mcp/src/utils/cdb-runner.ts": {
+    "mtime": 1781288015.9696589,
+    "ast_hash": "9226a7c7f2876dfd47da298864767eaa",
+    "semantic_hash": "9226a7c7f2876dfd47da298864767eaa"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tools/crash-dump-mcp/src/utils/types.ts": {
+    "mtime": 1781288015.9717536,
+    "ast_hash": "03f926d8e5045e3cc7bd032e2526d4e7",
+    "semantic_hash": "03f926d8e5045e3cc7bd032e2526d4e7"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tools/crash-dump-mcp/tsconfig.json": {
+    "mtime": 1781288015.9808962,
+    "ast_hash": "9e57014b6ee7c12137534723f0235469",
+    "semantic_hash": "9e57014b6ee7c12137534723f0235469"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tools/worktree-mcp/package.json": {
+    "mtime": 1781288015.9814677,
+    "ast_hash": "915645ec7b9d914ddfa68fb7063ad26c",
+    "semantic_hash": "915645ec7b9d914ddfa68fb7063ad26c"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tools/worktree-mcp/src/index.ts": {
+    "mtime": 1781288015.982423,
+    "ast_hash": "ee0baf7a817af15eb583ba243a14f5f5",
+    "semantic_hash": "ee0baf7a817af15eb583ba243a14f5f5"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tools/worktree-mcp/tsconfig.json": {
+    "mtime": 1781288015.982848,
+    "ast_hash": "9e57014b6ee7c12137534723f0235469",
+    "semantic_hash": "9e57014b6ee7c12137534723f0235469"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/vcpkg.json": {
+    "mtime": 1781288015.9836547,
+    "ast_hash": "4571414d3d643f54a25a35cbd2d33cca",
+    "semantic_hash": "4571414d3d643f54a25a35cbd2d33cca"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/package.json": {
+    "mtime": 1781288015.9839246,
+    "ast_hash": "034a407fc5f7fcf90836396a303d63e3",
+    "semantic_hash": "034a407fc5f7fcf90836396a303d63e3"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/tools/extract-snippets.mjs": {
+    "mtime": 1781884751.0397563,
+    "ast_hash": "8b39ff2761cedac9b9a506815957ac2d",
+    "semantic_hash": "8b39ff2761cedac9b9a506815957ac2d"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/tools/validate-prompts.mjs": {
+    "mtime": 1781884751.0401754,
+    "ast_hash": "7268a5a335aa98d9fb4c0d0f553d45e4",
+    "semantic_hash": "7268a5a335aa98d9fb4c0d0f553d45e4"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/agents/logic-bug-planner.agent.md": {
+    "mtime": 1781873468.7607348,
+    "ast_hash": "43407d24d51e9251af80365fa305b6dc",
+    "semantic_hash": "43407d24d51e9251af80365fa305b6dc"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/agents/logic-bug-resolver-lite.agent.md": {
+    "mtime": 1781897935.5006866,
+    "ast_hash": "03053473ab7f829c6a85fe17059f1f51",
+    "semantic_hash": "03053473ab7f829c6a85fe17059f1f51"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/agents/logic-bug-tutor.agent.md": {
+    "mtime": 1781873468.7612221,
+    "ast_hash": "651fec9e6a115b6939afed8a66702f20",
+    "semantic_hash": "651fec9e6a115b6939afed8a66702f20"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/chatmodes/builder.chatmode.md": {
+    "mtime": 1781884751.0383978,
+    "ast_hash": "e2b11e19d161aaf86806c6fa39695508",
+    "semantic_hash": "e2b11e19d161aaf86806c6fa39695508"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/chatmodes/cpp-architect.chatmode.md": {
+    "mtime": 1781288015.9016898,
+    "ast_hash": "a73d16f6be163895024903ec24d42a37",
+    "semantic_hash": "a73d16f6be163895024903ec24d42a37"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/chatmodes/cpp-developer.chatmode.md": {
+    "mtime": 1781288015.9018912,
+    "ast_hash": "8d0f3ccef78d614006357b61024c2b45",
+    "semantic_hash": "8d0f3ccef78d614006357b61024c2b45"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/chatmodes/cpp-tester.chatmode.md": {
+    "mtime": 1781288015.9021938,
+    "ast_hash": "ee298edbb6b513d407cbc3382aa7c699",
+    "semantic_hash": "ee298edbb6b513d407cbc3382aa7c699"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/chatmodes/planner.chatmode.md": {
+    "mtime": 1781288015.9029052,
+    "ast_hash": "810f2464d2ee0f0451f2166f620322bc",
+    "semantic_hash": "810f2464d2ee0f0451f2166f620322bc"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/chatmodes/reviewer.chatmode.md": {
+    "mtime": 1781288015.903145,
+    "ast_hash": "4b1e5f69a1e4c77ccc7ed39bd5c6f560",
+    "semantic_hash": "4b1e5f69a1e4c77ccc7ed39bd5c6f560"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/instructions/chat-mode-authoring.instructions.md": {
+    "mtime": 1781288015.9044933,
+    "ast_hash": "e775367d479853c5b823f7934bdc6de7",
+    "semantic_hash": "e775367d479853c5b823f7934bdc6de7"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/instructions/cpp-snippets.instructions.md": {
+    "mtime": 1781288015.9047685,
+    "ast_hash": "2a977a8500cb005d0d669ad98b14bf1c",
+    "semantic_hash": "2a977a8500cb005d0d669ad98b14bf1c"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/instructions/facilitator-script.instructions.md": {
+    "mtime": 1781288015.9051375,
+    "ast_hash": "268833eb2d2636eb096267dd1a324939",
+    "semantic_hash": "268833eb2d2636eb096267dd1a324939"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/instructions/learner-guide.instructions.md": {
+    "mtime": 1781288015.9053874,
+    "ast_hash": "53ae726fe86b49ed71876a1ac5fcfbb4",
+    "semantic_hash": "53ae726fe86b49ed71876a1ac5fcfbb4"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/instructions/prompt-authoring.instructions.md": {
+    "mtime": 1781288015.9159043,
+    "ast_hash": "e9c83dc044388eea1be05c8ecbc014a4",
+    "semantic_hash": "e9c83dc044388eea1be05c8ecbc014a4"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/instructions/survey-template.instructions.md": {
+    "mtime": 1781288015.9178982,
+    "ast_hash": "0192234dd50c245ebaf5d8d5b5f2c4fe",
+    "semantic_hash": "0192234dd50c245ebaf5d8d5b5f2c4fe"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/bootstrap-ci.prompt.md": {
+    "mtime": 1781288015.9188907,
+    "ast_hash": "75971c65730af3cd419ce6a4d60c63fb",
+    "semantic_hash": "75971c65730af3cd419ce6a4d60c63fb"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/bootstrap-copilot-customization.prompt.md": {
+    "mtime": 1781288015.9195886,
+    "ast_hash": "9a42cec0fd94969e348b41fd04329d20",
+    "semantic_hash": "9a42cec0fd94969e348b41fd04329d20"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/bootstrap-mcp.prompt.md": {
+    "mtime": 1781288015.9198186,
+    "ast_hash": "45e4fd0b23333144a8d1d72fe9214e6e",
+    "semantic_hash": "45e4fd0b23333144a8d1d72fe9214e6e"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/bootstrap-repo.prompt.md": {
+    "mtime": 1781288015.92003,
+    "ast_hash": "66508d9b0854c80ed4452c3b7cc8b64d",
+    "semantic_hash": "66508d9b0854c80ed4452c3b7cc8b64d"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/build-graph.prompt.md": {
+    "mtime": 1781288015.9202054,
+    "ast_hash": "f90ba5d062e6cb6231db3062bc6a69ad",
+    "semantic_hash": "f90ba5d062e6cb6231db3062bc6a69ad"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/context-belt.prompt.md": {
+    "mtime": 1781288015.9203796,
+    "ast_hash": "0304a9349d61210699dcc9de078054da",
+    "semantic_hash": "0304a9349d61210699dcc9de078054da"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/delivery-runbook.prompt.md": {
+    "mtime": 1781288015.920535,
+    "ast_hash": "58aacebd36c08f95fe2312346b1c0998",
+    "semantic_hash": "58aacebd36c08f95fe2312346b1c0998"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/demo-workspace-agents-md.prompt.md": {
+    "mtime": 1781288015.9207053,
+    "ast_hash": "23a55a9a66bbd6b4198e86ad7210075f",
+    "semantic_hash": "23a55a9a66bbd6b4198e86ad7210075f"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/demo-workspace-eastl-feature.prompt.md": {
+    "mtime": 1781288015.9208639,
+    "ast_hash": "17974b424a9c62b36885e61251abe1bd",
+    "semantic_hash": "17974b424a9c62b36885e61251abe1bd"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/demo-workspace-engine-module.prompt.md": {
+    "mtime": 1781288015.921166,
+    "ast_hash": "40c83c05fda7af4bd05c6bacc4f43f7c",
+    "semantic_hash": "40c83c05fda7af4bd05c6bacc4f43f7c"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/demo-workspace-fixtures-bug-reports.prompt.md": {
+    "mtime": 1781288015.921341,
+    "ast_hash": "576c957999b2515044a112a1ec37a913",
+    "semantic_hash": "576c957999b2515044a112a1ec37a913"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/demo-workspace-instructions-prompts-chatmodes.prompt.md": {
+    "mtime": 1781288015.9217372,
+    "ast_hash": "123e0d654a7d749b02b9eeac83cc05d0",
+    "semantic_hash": "123e0d654a7d749b02b9eeac83cc05d0"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/demo-workspace-scaffold.prompt.md": {
+    "mtime": 1781288015.9219418,
+    "ast_hash": "c8811147c8c1d044b25d048050dc5beb",
+    "semantic_hash": "c8811147c8c1d044b25d048050dc5beb"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/docs-sources.prompt.md": {
+    "mtime": 1781288015.9224546,
+    "ast_hash": "ca173bb72bd73d47521e32d8a5829ee8",
+    "semantic_hash": "ca173bb72bd73d47521e32d8a5829ee8"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/engagement-charter.prompt.md": {
+    "mtime": 1781288015.922964,
+    "ast_hash": "34aa72470a13ac29c5039efdadf90d23",
+    "semantic_hash": "34aa72470a13ac29c5039efdadf90d23"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/escalation-paths.prompt.md": {
+    "mtime": 1781288015.9231834,
+    "ast_hash": "4f88f39ada8cc17473bf376502ebda3d",
+    "semantic_hash": "4f88f39ada8cc17473bf376502ebda3d"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/factory-client-profile-ea-games.prompt.md": {
+    "mtime": 1781288015.9233658,
+    "ast_hash": "4de694c41fa7dc89d125ef535ba46dd1",
+    "semantic_hash": "4de694c41fa7dc89d125ef535ba46dd1"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/factory-demo-patterns.prompt.md": {
+    "mtime": 1781288015.9236493,
+    "ast_hash": "1d41a3790003214a3596c676a147e989",
+    "semantic_hash": "1d41a3790003214a3596c676a147e989"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/factory-domain-profile-games.prompt.md": {
+    "mtime": 1781288015.9238088,
+    "ast_hash": "d98f55d011ef9d2c59123144e22a2bef",
+    "semantic_hash": "d98f55d011ef9d2c59123144e22a2bef"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/factory-stack-profile-cpp-game-engine.prompt.md": {
+    "mtime": 1781288015.9239762,
+    "ast_hash": "fd29ece08f97134aa530dfa6c67f3ffe",
+    "semantic_hash": "fd29ece08f97134aa530dfa6c67f3ffe"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/feedback-toolkit.prompt.md": {
+    "mtime": 1781288015.9241252,
+    "ast_hash": "4c113b34897ac9638d6933bd758f8fb4",
+    "semantic_hash": "4c113b34897ac9638d6933bd758f8fb4"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/logic-bug-sweep.prompt.md": {
+    "mtime": 1781897935.5006995,
+    "ast_hash": "db28d0bbe2df9d9959e5a617212bf5d7",
+    "semantic_hash": "db28d0bbe2df9d9959e5a617212bf5d7"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/orchestrate-full-build.prompt.md": {
+    "mtime": 1781288015.9242957,
+    "ast_hash": "f49b83f034ccd0c403e5c5bd3757ca9e",
+    "semantic_hash": "f49b83f034ccd0c403e5c5bd3757ca9e"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/review-adversarial.prompt.md": {
+    "mtime": 1781288015.9244661,
+    "ast_hash": "76893a9325c6338179e8c0c30f264eb8",
+    "semantic_hash": "76893a9325c6338179e8c0c30f264eb8"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/review-copilot-plan-gating.prompt.md": {
+    "mtime": 1781288015.9251728,
+    "ast_hash": "b5f9631cc281e1622b16b159613bbebb",
+    "semantic_hash": "b5f9631cc281e1622b16b159613bbebb"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/review-cpp-snippets.prompt.md": {
+    "mtime": 1781288015.9263067,
+    "ast_hash": "63d18888496f210ee2d82c155070d83b",
+    "semantic_hash": "63d18888496f210ee2d82c155070d83b"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/review-prompt-conformance.prompt.md": {
+    "mtime": 1781288015.9265876,
+    "ast_hash": "a6ce1e1d7f048e4f0c9dd1eb19d1b4d4",
+    "semantic_hash": "a6ce1e1d7f048e4f0c9dd1eb19d1b4d4"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/session-03-logic-bugs.prompt.md": {
+    "mtime": 1781288015.9297957,
+    "ast_hash": "a98dfc879357b700a49d42b418e584e5",
+    "semantic_hash": "a98dfc879357b700a49d42b418e584e5"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/prompts/slides-template.prompt.md": {
+    "mtime": 1781288015.9315326,
+    "ast_hash": "2806d657d02174ba6eb2f4d81a3c492a",
+    "semantic_hash": "2806d657d02174ba6eb2f4d81a3c492a"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/skills/logic-bug-triage/SKILL.md": {
+    "mtime": 1781897935.532926,
+    "ast_hash": "8420c3d04a04157d695d94b1d790e31c",
+    "semantic_hash": "8420c3d04a04157d695d94b1d790e31c"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/.github/skills/logic-bug-triage/bug-map.md": {
+    "mtime": 1781897935.5136492,
+    "ast_hash": "dbc66eb394a55519138c398aecaaf042",
+    "semantic_hash": "dbc66eb394a55519138c398aecaaf042"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/AGENTS.md": {
+    "mtime": 1781288015.9320312,
+    "ast_hash": "f0b6d3d222c2523f3ff4be5e0a0e94ea",
+    "semantic_hash": "f0b6d3d222c2523f3ff4be5e0a0e94ea"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/Analysis_training.md": {
+    "mtime": 1781887311.113774,
+    "ast_hash": "0f4048952383c3053b08ea982777f611",
+    "semantic_hash": "0f4048952383c3053b08ea982777f611"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/CHANGELOG.md": {
+    "mtime": 1782076665.6565447,
+    "ast_hash": "91e9566105d0c8c2eb00b730a1b5e9b0",
+    "semantic_hash": "91e9566105d0c8c2eb00b730a1b5e9b0"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/README.md": {
+    "mtime": 1782002198.6624782,
+    "ast_hash": "48b49ca98aeb98059193e7dc946afb04",
+    "semantic_hash": "48b49ca98aeb98059193e7dc946afb04"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/docs/session-03-dry-run-history.md": {
+    "mtime": 1781896657.0214367,
+    "ast_hash": "73d2033d2c7e900247a994505cd8b61c",
+    "semantic_hash": "73d2033d2c7e900247a994505cd8b61c"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/docs/session-03-logic-bugs-runbook.md": {
+    "mtime": 1781873468.762727,
+    "ast_hash": "950ccca6ba3e5430012e588e4dd5bb00",
+    "semantic_hash": "950ccca6ba3e5430012e588e4dd5bb00"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/docs/session-03-training-verification-checklist.md": {
+    "mtime": 1781886142.4851208,
+    "ast_hash": "d22f542cc0133a38ca0401710ca7aaa4",
+    "semantic_hash": "d22f542cc0133a38ca0401710ca7aaa4"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/.github/copilot-instructions.md": {
+    "mtime": 1782076813.196147,
+    "ast_hash": "ec2dc0dc7bef63488889f34de2f5584d",
+    "semantic_hash": "ec2dc0dc7bef63488889f34de2f5584d"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/AGENTS.md": {
+    "mtime": 1781288015.9339602,
+    "ast_hash": "15407300c2cc2864d02fe487a53f2710",
+    "semantic_hash": "15407300c2cc2864d02fe487a53f2710"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/CMakeLists.txt": {
+    "mtime": 1781288015.9340956,
+    "ast_hash": "c29d1970d4a33f38cc12b2cd678dd186",
+    "semantic_hash": "c29d1970d4a33f38cc12b2cd678dd186"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/README.md": {
+    "mtime": 1781873468.7648394,
+    "ast_hash": "2886bba627472fa241240f240761cf5a",
+    "semantic_hash": "2886bba627472fa241240f240761cf5a"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/CMakeLists.txt": {
+    "mtime": 1781288015.9348156,
+    "ast_hash": "479ef410cf41d68f0ae045e3b07a86c7",
+    "semantic_hash": "479ef410cf41d68f0ae045e3b07a86c7"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/poc/CMakeLists.txt": {
+    "mtime": 1781288015.9352748,
+    "ast_hash": "74a81a1b7fbb32101f5728b0bc997564",
+    "semantic_hash": "74a81a1b7fbb32101f5728b0bc997564"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/CMakeLists.txt": {
+    "mtime": 1781288015.936321,
+    "ast_hash": "bc1a7fa5cad719ac18445e6456aed4b0",
+    "semantic_hash": "bc1a7fa5cad719ac18445e6456aed4b0"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/apps/sandbox/README.md": {
+    "mtime": 1781288015.9367468,
+    "ast_hash": "f7bae66873f2528f0e03c4a882b25d40",
+    "semantic_hash": "f7bae66873f2528f0e03c4a882b25d40"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/bug-reports/BUG-002.md": {
+    "mtime": 1781288015.9427686,
+    "ast_hash": "3e4dbb6b0f2864a23eb0ada7006797c9",
+    "semantic_hash": "3e4dbb6b0f2864a23eb0ada7006797c9"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/bug-reports/BUG-003.md": {
+    "mtime": 1781288015.9429479,
+    "ast_hash": "6df2909c869653cf4e9b2e69b1405616",
+    "semantic_hash": "6df2909c869653cf4e9b2e69b1405616"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/bug-reports/BUG-004.md": {
+    "mtime": 1781288015.943091,
+    "ast_hash": "3b23b1f04945a6153093c7c459e1a962",
+    "semantic_hash": "3b23b1f04945a6153093c7c459e1a962"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/bug-reports/BUG-005.md": {
+    "mtime": 1781288015.9432788,
+    "ast_hash": "84f82601022e06b533045f7b5557ad97",
+    "semantic_hash": "84f82601022e06b533045f7b5557ad97"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/bug-reports/BUG-006.md": {
+    "mtime": 1781288015.9434311,
+    "ast_hash": "edfc0dec31476eff9e0c37a4740a6abf",
+    "semantic_hash": "edfc0dec31476eff9e0c37a4740a6abf"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/bug-reports/BUG-007.md": {
+    "mtime": 1781288015.9436688,
+    "ast_hash": "99b2127a02580f9c3c3a1636737c47f2",
+    "semantic_hash": "99b2127a02580f9c3c3a1636737c47f2"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/bug-reports/BUG-008.md": {
+    "mtime": 1781288015.9440196,
+    "ast_hash": "1e4e103b6bfbdbb525d25ddcda98f75f",
+    "semantic_hash": "1e4e103b6bfbdbb525d25ddcda98f75f"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/bug-reports/BUG-009.md": {
+    "mtime": 1781288015.944264,
+    "ast_hash": "2b5e0855fe4836b8da29591eb42e4989",
+    "semantic_hash": "2b5e0855fe4836b8da29591eb42e4989"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/bug-reports/BUG-010.md": {
+    "mtime": 1781288015.9446366,
+    "ast_hash": "dc69d6f388569ac8eb256145ec1d9df8",
+    "semantic_hash": "dc69d6f388569ac8eb256145ec1d9df8"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/crash_dumps/BUG-001/README.md": {
+    "mtime": 1781288015.9451904,
+    "ast_hash": "d0efe5804824701b7eb723c6ce7675fb",
+    "semantic_hash": "d0efe5804824701b7eb723c6ce7675fb"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/fixtures/seeded-bugs.md": {
+    "mtime": 1781288015.9459114,
+    "ast_hash": "5a2efa9b607b041e203780068902b11e",
+    "semantic_hash": "5a2efa9b607b041e203780068902b11e"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/include/engine_demo/ecs/SUBSYSTEM.md": {
+    "mtime": 1781288015.9468656,
+    "ast_hash": "2e0f189190b0efaefa6e0780783b5161",
+    "semantic_hash": "2e0f189190b0efaefa6e0780783b5161"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/specs/README.md": {
+    "mtime": 1781288015.9504519,
+    "ast_hash": "0520489bc769d38955d1d945c8ffbd3f",
+    "semantic_hash": "0520489bc769d38955d1d945c8ffbd3f"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/specs/constitution.md": {
+    "mtime": 1781288015.9506495,
+    "ast_hash": "91e31667139416e416121df36570d804",
+    "semantic_hash": "91e31667139416e416121df36570d804"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/specs/fixed-string/README.md": {
+    "mtime": 1781288015.9509482,
+    "ast_hash": "aee8b90e3ab63504bee9ee411bdca944",
+    "semantic_hash": "aee8b90e3ab63504bee9ee411bdca944"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/specs/lockless-ring-buffer/README.md": {
+    "mtime": 1781288015.9512022,
+    "ast_hash": "24dc3ff2a92162c9a485057c7db384df",
+    "semantic_hash": "24dc3ff2a92162c9a485057c7db384df"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/src/CMakeLists.txt": {
+    "mtime": 1781288015.9515355,
+    "ast_hash": "e38f1dfae17991637b5bc63be41724cd",
+    "semantic_hash": "e38f1dfae17991637b5bc63be41724cd"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/src/engine_demo/CMakeLists.txt": {
+    "mtime": 1781288015.9518068,
+    "ast_hash": "21d445895209fd573091313ab047eb8e",
+    "semantic_hash": "21d445895209fd573091313ab047eb8e"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tests/CMakeLists.txt": {
+    "mtime": 1781288015.9543712,
+    "ast_hash": "a99c1d080f1e5539b3bc9192f9a0679f",
+    "semantic_hash": "a99c1d080f1e5539b3bc9192f9a0679f"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/tests/engine_demo/CMakeLists.txt": {
+    "mtime": 1781288015.9546182,
+    "ast_hash": "caba5ca8085435f967ca2ed4abb1ce71",
+    "semantic_hash": "caba5ca8085435f967ca2ed4abb1ce71"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/third_party/README.md": {
+    "mtime": 1781288015.9667227,
+    "ast_hash": "598893a25296fb71fe7e2bf6c523b220",
+    "semantic_hash": "598893a25296fb71fe7e2bf6c523b220"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/exercises/01-test-before-fix.md": {
+    "mtime": 1782076665.6732302,
+    "ast_hash": "812c95f4db85f6f42bf9701f00189c4c",
+    "semantic_hash": "812c95f4db85f6f42bf9701f00189c4c"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/exercises/02-find-a-third.md": {
+    "mtime": 1782076665.69842,
+    "ast_hash": "9df33cdcc48a751cea2ec6bf55e8a65e",
+    "semantic_hash": "9df33cdcc48a751cea2ec6bf55e8a65e"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/exercises/03-ub-and-the-optimizer.md": {
+    "mtime": 1782076665.6780922,
+    "ast_hash": "3e549ea27fb90da47b192cd907554afe",
+    "semantic_hash": "3e549ea27fb90da47b192cd907554afe"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/exercises/04-bitwise-vs-logical.md": {
+    "mtime": 1782076665.678114,
+    "ast_hash": "34d843740835c4376ec44477df7c63c3",
+    "semantic_hash": "34d843740835c4376ec44477df7c63c3"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/exercises/05-atomic-but-not-ordered.md": {
+    "mtime": 1782076665.67818,
+    "ast_hash": "e251a2b23c6c2c4af12b7e7525f6d221",
+    "semantic_hash": "e251a2b23c6c2c4af12b7e7525f6d221"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/exercises/06-sentinel-trap.md": {
+    "mtime": 1782076665.6782043,
+    "ast_hash": "13717bec913d3841e7db5ce4725f9198",
+    "semantic_hash": "13717bec913d3841e7db5ce4725f9198"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/facilitator-script.md": {
+    "mtime": 1781873468.771317,
+    "ast_hash": "e66a8731adc8f0554e183ab8c35befee",
+    "semantic_hash": "e66a8731adc8f0554e183ab8c35befee"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/fallback-screenshots/README.md": {
+    "mtime": 1782071842.8114407,
+    "ast_hash": "cd9be5b80e3baf680c45d226a979f6ec",
+    "semantic_hash": "cd9be5b80e3baf680c45d226a979f6ec"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/learner-guide.md": {
+    "mtime": 1782076665.6584272,
+    "ast_hash": "5832249e4e679f864dfbedbde41ff210",
+    "semantic_hash": "5832249e4e679f864dfbedbde41ff210"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/logic-bug-workshop-training.md": {
+    "mtime": 1782076665.6564994,
+    "ast_hash": "11ebe8bc8dcd4977816361e6e0e012f5",
+    "semantic_hash": "11ebe8bc8dcd4977816361e6e0e012f5"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/pre-work-email.md": {
+    "mtime": 1781288016.0001712,
+    "ast_hash": "a479be0c1c04538134f6c6febe48c173",
+    "semantic_hash": "a479be0c1c04538134f6c6febe48c173"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/qa-track.md": {
+    "mtime": 1781873468.7737095,
+    "ast_hash": "846ac62eaad8b5c98913065f689b8d29",
+    "semantic_hash": "846ac62eaad8b5c98913065f689b8d29"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/retro-survey.md": {
+    "mtime": 1781288016.0004613,
+    "ast_hash": "4a543296399edbdc58f43937f664b79a",
+    "semantic_hash": "4a543296399edbdc58f43937f664b79a"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/review-report.md": {
+    "mtime": 1781873468.774087,
+    "ast_hash": "8ea37e1a06cbb5d2d1aac938af97b6a6",
+    "semantic_hash": "8ea37e1a06cbb5d2d1aac938af97b6a6"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/sdlc-walkthrough.md": {
+    "mtime": 1781873468.7744613,
+    "ast_hash": "be20fef72e20ca57524d3af3dec7d807",
+    "semantic_hash": "be20fef72e20ca57524d3af3dec7d807"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/03-logic-bugs/slides.outline.md": {
+    "mtime": 1781873468.774924,
+    "ast_hash": "474cc82c97d23bfad235551e5354b9e2",
+    "semantic_hash": "474cc82c97d23bfad235551e5354b9e2"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/sessions/README.md": {
+    "mtime": 1781873468.7757447,
+    "ast_hash": "bc5792b36bde54489d3e3630881a0b5b",
+    "semantic_hash": "bc5792b36bde54489d3e3630881a0b5b"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/tools/snippet-cmake-template/CMakeLists.txt": {
+    "mtime": 1781288016.0187485,
+    "ast_hash": "75d13084b45ebbbc56531939607a22e8",
+    "semantic_hash": "75d13084b45ebbbc56531939607a22e8"
+  },
+  "/Users/hluciano/projects/ea-logic-copilot-workshop-code/output/ea-cpp-games/screenshot.png": {
+    "mtime": 1781288015.9500928,
+    "ast_hash": "219cf4ccfd6f0ecf3cf241b7b253f715",
+    "semantic_hash": "219cf4ccfd6f0ecf3cf241b7b253f715"
+  }
+}
