@@ -14,6 +14,7 @@ to learn when each technique earns its cost.
    `unstarted_does_not_read_oob`, and watch it fail:
 
    ```bash
+   cd output/ea-cpp-games
    cmake --build --preset default-debug && ctest --preset default-debug -R interpolator
    ```
 

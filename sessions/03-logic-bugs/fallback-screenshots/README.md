@@ -12,11 +12,11 @@ no EA-confidential UI, and crop to the Chat panel plus the relevant editor split
 | File name              | What to capture                                                                                                    |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `bug-002-observe.png`  | Ask-tab analysis of `game_loop.{h,cpp}` + constitution identifying `float m_accumulator_seconds`, citing Article 5 |
-| `bug-002-red-test.png` | Terminal: `ctest -R long_run` failing at ~frame 1800                                                               |
+| `bug-002-red-test.png` | Terminal: `ctest --preset default-debug -R test_game_loop` failing on substep drift                                 |
 | `bug-002-fix-diff.png` | Edit-tab diff: `float` → `double`, redundant casts removed                                                         |
-| `bug-002-green.png`    | Terminal: `ctest -R long_run` passing                                                                              |
+| `bug-002-green.png`    | Terminal: `ctest --preset default-debug -R test_game_loop` passing                                                 |
 | `bug-007-observe.png`  | Ask-tab analysis of `timer.{h,cpp}` explaining signed-overflow UB and guard elision at `-O2`                       |
-| `bug-007-red-test.png` | Terminal: `ctest --preset optimized -R overflow` failing                                                           |
+| `bug-007-red-test.png` | Terminal: `ctest --preset optimized -R test_timer` failing                                                         |
 | `bug-007-fix-diff.png` | Edit-tab diff: `int32_t` → `uint64_t`, guard removed                                                               |
 | `bug-007-green.png`    | Terminal: full suite green after the fix                                                                           |
 

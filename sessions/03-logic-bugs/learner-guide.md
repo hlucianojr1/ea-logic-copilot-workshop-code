@@ -29,6 +29,7 @@ You have two ways to work through it — pick one:
 Open `output/ea-cpp-games/` and, from that folder, configure, build, and test:
 
 ```bash
+cd output/ea-cpp-games
 cmake --preset default-debug
 cmake --build --preset default-debug
 ctest --preset default-debug --output-on-failure
@@ -89,10 +90,12 @@ Re-enable DISABLED_long_run_does_not_drift. Confirm it fails. State, in one sent
 it fails.
 ```
 
-Then run just that test and watch it go red:
+Then run just that test and watch it go red (from `output/ea-cpp-games/`):
 
 ```bash
-ctest --preset default-debug --output-on-failure -R long_run_does_not_drift
+cd output/ea-cpp-games
+cmake --build --preset default-debug
+ctest --preset default-debug --output-on-failure -R test_game_loop
 ```
 
 **3. Fix.** In the **Edit** tab:
@@ -110,6 +113,7 @@ ask: "are any casts now redundant?"
 **4. Verify.** Re-run the single test (now green), then the full suite:
 
 ```bash
+cd output/ea-cpp-games
 ctest --preset default-debug --output-on-failure
 ```
 
@@ -146,6 +150,7 @@ DISABLED_first_sample_is_not_double_counted_on_warmup.
 **4. Verify.** Run the full suite and confirm green:
 
 ```bash
+cd output/ea-cpp-games
 ctest --preset default-debug --output-on-failure
 ```
 
@@ -178,7 +183,7 @@ Hands-on exercise files for BUG-007, 008, 009, and 010 are in [exercises/](exerc
   this test asserts and why it will fail before the accumulator type is fixed.
   ```
 
-- **Expected outcome:** You run `ctest ... -R long_run_does_not_drift`, watch it fail, apply
+- **Expected outcome:** You run `ctest ... -R test_game_loop`, watch it fail, apply
   the BUG-002 fix, and watch it pass — in that order.
 - Full steps: [exercises/01-test-before-fix.md](exercises/01-test-before-fix.md).
 

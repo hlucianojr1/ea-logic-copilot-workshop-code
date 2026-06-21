@@ -15,6 +15,7 @@ reproduction tool.
    `consumer_observes_complete_payload`, then build with the `tsan` preset:
 
    ```bash
+   cd output/ea-cpp-games
    cmake --preset tsan && cmake --build --preset tsan
    ctest --preset tsan -R event_queue
    ```

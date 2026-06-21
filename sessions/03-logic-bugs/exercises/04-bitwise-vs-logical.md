@@ -14,6 +14,7 @@ surface competing hypotheses before committing to one.
    `padding_does_not_affect_comparison`, and watch it fail:
 
    ```bash
+   cd output/ea-cpp-games
    cmake --build --preset default-debug && ctest --preset default-debug -R replay
    ```
 

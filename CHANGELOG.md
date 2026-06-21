@@ -9,6 +9,35 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 <!-- markdownlint-disable MD024 -->
 
+### Added
+
+- **Session 03 pre-flight reset/readiness script.** New `output/ea-cpp-games/reset_workshop.sh`
+  reverts the seeded engine_demo source + tests to the clean committed baseline (via
+  `git restore`, never a destructive op), rebuilds the `default-debug` preset, confirms all 10
+  seeded regression tests are still `DISABLED_`, runs the full suite, and prints a
+  `READY`/`NOT READY` verdict. Run it before starting the session and between Demo A and Demo B.
+
+### Fixed
+
+- **Session 03 `ctest -R` filters that matched no tests.** ctest `-R` is a regex *substring*
+  match against the registered binary name, so gtest case-name fragments
+  (`-R deterministic`, `-R warmup`, `-R long_run_does_not_drift`) reported
+  `No tests were found!!!`. Corrected to the owning binary name in
+  `logic-bug-workshop-training.md` (BUG-004 → `-R test_constraint`, BUG-006 →
+  `-R test_frame_budget`), `learner-guide.md` (BUG-002 → `-R test_game_loop`, plus a missing
+  `cmake --build` step), and the `fallback-screenshots/README.md` capture checklist. Added a
+  demo-reset reminder between the BUG-002 and BUG-007 demos pointing at `reset_workshop.sh`.
+
+- **Session 03 build/test commands now state their working directory.** `cmake`/`ctest
+  --preset` commands only work from `output/ea-cpp-games/` (the sole `CMakePresets.json`
+  location); running them from the repo root failed with `Could not read presets ... File
+  not found: CMakePresets.json`. Added a `cd output/ea-cpp-games` line (and a Section 1c /
+  2c working-directory note) to every affected fenced `bash` block in
+  `sessions/03-logic-bugs/logic-bug-workshop-training.md`, the learner companion
+  `sessions/03-logic-bugs/learner-guide.md`, and exercises `03`–`06`. Added a
+  "Running the demo-workspace build & tests" section (with an optional personal `~/.zshrc`
+  alias) to the repo-root `README.md`. `sdlc-walkthrough.md` already scoped its commands.
+
 ### Removed
 
 - **Scoped repository to Session 03 (Logic Bugs) only.** Deleted all content

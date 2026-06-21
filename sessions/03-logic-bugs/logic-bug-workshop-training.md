@@ -145,9 +145,12 @@ flowchart TB
 > - Left: `src/engine_demo/sim/game_loop.cpp`
 > - Right: `tests/engine_demo/test_game_loop.cpp`
 >
-> **Do:** Verify the baseline is green:
+> **Do:** Verify the baseline is green. **All build and test commands in this session run
+> from the `output/ea-cpp-games/` workspace** — that is where `CMakePresets.json` lives, so
+> `cmake`/`ctest --preset` fail from the repo root:
 >
 > ```bash
+> cd output/ea-cpp-games
 > ctest --preset default-debug --output-on-failure
 > ```
 >
@@ -188,11 +191,21 @@ Re-enable the DISABLED_long_run_does_not_drift test by removing the DISABLED_ pr
 Explain in one sentence why this test will fail.
 ```
 
-> **Do:** Apply the edit (remove `DISABLED_` prefix). Run:
+> **Do:** Apply the edit (remove `DISABLED_` prefix). Rebuild so GoogleTest registers the
+> newly enabled test, then run (from `output/ea-cpp-games/`):
 
 ```bash
-ctest --preset default-debug --output-on-failure -R long_run
+cd output/ea-cpp-games
+cmake --build --preset default-debug
+ctest --preset default-debug --output-on-failure -R test_game_loop
 ```
+
+> **Note:** `ctest` does **not** compile. Skipping the rebuild after removing `DISABLED_`
+> yields `No tests were found!!!` because the renamed test was never compiled in.
+
+> **Note:** ctest registers tests **per binary**, not per GoogleTest case. The `-R` filter
+> matches the binary name (`test_game_loop`), so the whole timer-loop binary runs and the
+> `long_run` case fails inside it. A case-name filter like `-R long_run` matches nothing.
 
 > **Watch for:** The test fails with `substep drift at frame 3599` and `cumulative substep drift over 3600 frames` — the float loop fires 2159 substeps where the inline double reference fires 2160 over 36 simulated seconds.
 
@@ -212,15 +225,23 @@ static_cast<float> calls. Constitutional articles 1, 2, and 5 must hold.
 
 > **Watch for:** The diff changes the member type in the header and drops the casts in the `.cpp`. If Copilot leaves any casts, ask: "Are any casts now redundant?"
 
-> **Do:** Accept the edit. Rerun:
+> **Do:** Accept the edit, rebuild, then rerun (from `output/ea-cpp-games/`):
 
 ```bash
-ctest --preset default-debug --output-on-failure -R long_run
+cd output/ea-cpp-games
+cmake --build --preset default-debug
+ctest --preset default-debug --output-on-failure -R test_game_loop
 ```
 
 > **Watch for:** Green. The test passes.
 
 > **Say:** "Four minutes. Root cause identified, test reproducing, fix verified. That's the CoT workflow: observe → reproduce → bisect → fix → verify."
+
+> **Reset before the next demo:** Demo B must start from the clean seeded baseline (BUG-002
+> re-DISABLED, the `float`→`double` fix reverted). From `output/ea-cpp-games/`, run
+> `./reset_workshop.sh` — it reverts the seeded source + tests, rebuilds, and confirms a green
+> baseline before you continue. (Equivalent manual step: `git restore tests/engine_demo
+> src/engine_demo include/engine_demo` then rebuild.)
 
 ---
 
@@ -256,19 +277,37 @@ signed integer overflow and how a conforming optimizer treats this code.
 
 #### Step 3: Reproduce
 
-> **Do:** Enable `DISABLED_overflow_guard_not_elided` in `tests/engine_demo/test_timer.cpp`.
+> **Do:** Enable `DISABLED_overflow_guard_not_elided` in `tests/engine_demo/test_timer.cpp`
+> (remove the `DISABLED_` prefix — it is on line 46).
 
-> **Do:** Run the test in the optimized (-O2) preset, where the elision actually bites:
-
-```bash
-ctest --preset optimized --output-on-failure -R overflow
-```
-
-> **Do:** For contrast, run the same test in the Debug (-O0) preset — it passes by accident because the guard is not elided:
+> **Do:** Configure **and build** the optimized (-O2) preset, where the elision actually
+> bites. The `build-optimized/` tree may not exist yet, so the `cmake --preset` configure
+> step is required the first time (from `output/ea-cpp-games/`):
 
 ```bash
-ctest --preset default-debug --output-on-failure -R overflow
+cd output/ea-cpp-games
+cmake --preset optimized          # first run only: creates build-optimized/
+cmake --build --preset optimized  # compiles the now-enabled test
+ctest --preset optimized --output-on-failure -R test_timer
 ```
+
+> **Do:** For contrast, rebuild and run the same test in the Debug (-O0) preset — it passes
+> by accident because the guard is not elided:
+
+```bash
+cd output/ea-cpp-games
+cmake --build --preset default-debug
+ctest --preset default-debug --output-on-failure -R test_timer
+```
+
+> **Note:** `ctest` never compiles. Two failure modes if you skip the build steps:
+> `No tests were found!!!` (the `DISABLED_` test was never compiled in), or stale results
+> from a prior build. Always `cmake --build` the preset before its `ctest` run.
+
+> **Note:** ctest registers tests **per binary**, so the `-R` filter is the binary name
+> (`test_timer`), not the GoogleTest case (`overflow_guard_not_elided`). The whole
+> `test_timer` binary runs (4 cases); the overflow case fails inside it at -O2. A filter
+> like `-R overflow` matches nothing and reports `No tests were found!!!`.
 
 > **Watch for:** `optimized` FAILS (the signed-overflow guard is deleted at -O2); `default-debug` PASSES (the guard runs at -O0). That contrast is the entire lesson — "works in Debug" is not validation.
 
@@ -286,6 +325,16 @@ Update tick() return type and elapsed_ms() accordingly. Constitutional articles 
 ```
 
 > **Watch for:** Copilot changes the type in the header, updates the function signatures, and removes the UB guard.
+
+> **Do:** Accept the edit, rebuild the optimized preset, then rerun to confirm green (from `output/ea-cpp-games/`):
+
+```bash
+cd output/ea-cpp-games
+cmake --build --preset optimized
+ctest --preset optimized --output-on-failure -R test_timer
+```
+
+> **Watch for:** Green at -O2. The unsigned type makes wraparound defined, so no guard is needed and nothing is elided.
 
 > **Say:** "The fix isn't 'make the guard better' — it's 'change the type so no guard is needed.' Copilot suggested the same fix the standard recommends."
 
@@ -404,9 +453,14 @@ The workspace follows a standard C++20 game-engine layout:
 
 ## 2c. Build and Test Cycle
 
+> All commands below run from the `output/ea-cpp-games/` workspace (where `CMakePresets.json`
+> lives). Running `cmake`/`ctest --preset` from the repo root fails with
+> `Could not read presets ... File not found: CMakePresets.json`.
+
 ### Build commands
 
 ```bash
+cd output/ea-cpp-games
 cmake --preset default-debug
 cmake --build --preset default-debug
 ```
@@ -414,6 +468,7 @@ cmake --build --preset default-debug
 ### Run all tests
 
 ```bash
+cd output/ea-cpp-games
 ctest --preset default-debug --output-on-failure
 ```
 
@@ -847,7 +902,7 @@ test. Shall I write the full test?
 ## Phase 4: VERIFY (pending)
 
 Will run after fix is approved and applied:
-- `ctest --preset default-debug --output-on-failure -R deterministic`
+- `ctest --preset default-debug --output-on-failure -R test_constraint`
 - Full suite: `ctest --preset default-debug --output-on-failure`
 ```
 
@@ -888,7 +943,7 @@ average should be (2+4+6)/3 = 4.0, but the code may include a stale zero from sl
 **Action:** Enable `DISABLED_first_sample_is_not_double_counted_on_warmup` in
 `tests/engine_demo/test_frame_budget.cpp`.
 
-**Result:** Running `ctest -R warmup` — the test PASSES as seeded: a single sample of
+**Result:** Running `ctest -R test_frame_budget` — the test PASSES as seeded: a single sample of
 10.0 yields `rolling_average() == 10.0`, because `m_count` is 1 and only the written
 slot is summed (the backing array is zero-initialized). BUG-006 does **not** reproduce
 in the seeded tree — this is a deliberate *non-reproducing* hypothesis. To make it fail

@@ -13,6 +13,7 @@ optimizer at `-O2` — and experience why Debug-only testing gives false confide
    `DISABLED_` prefix from `overflow_guard_not_elided`, then:
 
    ```bash
+   cd output/ea-cpp-games
    cmake --preset default-debug && cmake --build --preset default-debug
    ctest --preset default-debug -R timer
    ```
@@ -22,6 +23,7 @@ optimizer at `-O2` — and experience why Debug-only testing gives false confide
 2. Now build with the `optimized` preset (RelWithDebInfo, `-O2 -DNDEBUG`):
 
    ```bash
+   cd output/ea-cpp-games
    cmake --preset optimized && cmake --build --preset optimized
    ctest --preset optimized -R timer
    ```

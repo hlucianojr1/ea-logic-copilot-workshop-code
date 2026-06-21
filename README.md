@@ -75,6 +75,32 @@ npm run validate:prompts    # checks every .prompt.md against authoring rules
 
 CI runs all of the above on every PR. See [`.github/workflows/`](.github/workflows/).
 
+## Running the demo-workspace build & tests
+
+The C++ engine lives under [`output/ea-cpp-games/`](output/), and that is the **only** folder
+that contains a `CMakePresets.json`. CMake and CTest read presets from the current working
+directory, so every `cmake --preset` / `ctest --preset` command must run **from
+`output/ea-cpp-games/`**. Running them from the repo root fails with:
+
+```text
+CMake Error: Could not read presets ... File not found: .../CMakePresets.json
+```
+
+Always `cd` into the workspace first:
+
+```bash
+cd output/ea-cpp-games
+ctest --preset default-debug --output-on-failure
+```
+
+Optional convenience — add a personal alias to your own `~/.zshrc` (not committed) so the
+command works from anywhere in the repo:
+
+```bash
+# ~/.zshrc — runs the engine_demo baseline tests from any directory
+alias engine-test='(cd "$(git rev-parse --show-toplevel)/output/ea-cpp-games" && ctest --preset default-debug --output-on-failure)'
+```
+
 ## How to deliver
 
 See [`docs/delivery-runbook.md`](docs/delivery-runbook.md) for facilitator pre/post-session
