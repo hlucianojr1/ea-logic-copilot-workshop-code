@@ -20,6 +20,8 @@
 7. [Appendix: Intermediate Developer Bridge](#section-7--appendix-intermediate-developer-bridge)
 8. [New Copilot Capabilities: Loops, Skills & Cheaper Models](#section-8--new-copilot-capabilities-loops-skills--cheaper-models-static-guide-15-min)
 
+> **Before you begin:** run the one-time [Pre-flight Setup](#pre-flight-setup-run-once-t-10-min) to confirm a green, seeded baseline.
+
 ---
 
 ## C++ Game Logic Bug Taxonomy
@@ -42,6 +44,39 @@
 | FP-001 | Seed function appears to truncate        | Narrow-widen via XOR; no data loss                |
 | FP-002 | Constraint loop appears to read past end | Sentinel iteration; never reads buffer            |
 | FP-003 | `m_ready` flagged as non-atomic          | Flag IS `std::atomic<bool>`; real bug is ordering |
+
+---
+
+## Pre-flight Setup (run once, T-10 min)
+
+Run this **once** before the room arrives. It guarantees a clean, green, seeded baseline so
+every demo and exercise starts from the same state. The fastest path is to hand the whole
+check to the planner agent; a manual fallback follows.
+
+> 🔧 **Setup prompt** — paste into the **Agent** panel with `@logic-bug-planner` selected:
+
+```text
+@logic-bug-planner
+Prepare the Session-03 baseline in output/ea-cpp-games/. Do exactly this, no fixes:
+1. Run ./reset_workshop.sh and report its final READY / NOT READY line verbatim.
+2. Confirm `ctest --preset default-debug` is fully green.
+3. Confirm all 10 DISABLED_ tests are still DISABLED_ (none enabled).
+4. Confirm `git status --short` is clean (no seeded files modified).
+Stop and report a PASS/FAIL checklist. Do not edit any source or test file.
+```
+
+> **Manual fallback** (if the agent is unavailable):
+>
+> ```bash
+> cd output/ea-cpp-games
+> ./reset_workshop.sh          # prints READY or NOT READY
+> ctest --preset default-debug --output-on-failure
+> git status --short           # expect empty output
+> ```
+>
+> You are ready when `reset_workshop.sh` prints **READY**, ctest is green, and the working
+> tree is clean. If it prints **NOT READY**, do not start — see
+> [1d. Fallback Recovery Script](#1d-fallback-recovery-script).
 
 ---
 
@@ -140,14 +175,29 @@ flowchart TB
 
 ### Pre-demo checklist (T-5 min)
 
+> 🔧 **Section Setup** — confirm the baseline and stage the files. Paste into the **Agent**
+> panel with `@logic-bug-planner` selected:
+
+```text
+@logic-bug-planner
+We are about to run the Section 1 live demo for BUG-002 and BUG-007 in
+output/ea-cpp-games/. Verify readiness only — do NOT fix anything:
+1. Confirm `ctest --preset default-debug` is green.
+2. Confirm long_run_does_not_drift is still DISABLED_ in test_game_loop.cpp.
+3. Confirm the optimized preset exists (build-optimized/) for the Demo B -O2 step.
+Report PASS/FAIL per item. Then list the four files to open in split editors:
+game_loop.cpp, test_game_loop.cpp, timer.cpp, timer.h.
+```
+
 > **Do:** Open these files in split editor groups:
 >
 > - Left: `src/engine_demo/sim/game_loop.cpp`
 > - Right: `tests/engine_demo/test_game_loop.cpp`
 >
-> **Do:** Verify the baseline is green. **All build and test commands in this session run
-> from the `output/ea-cpp-games/` workspace** — that is where `CMakePresets.json` lives, so
-> `cmake`/`ctest --preset` fail from the repo root:
+> All build and test commands in this session run from the `output/ea-cpp-games/` workspace —
+> that is where `CMakePresets.json` lives, so `cmake`/`ctest --preset` fail from the repo root.
+
+> **Manual fallback:**
 >
 > ```bash
 > cd output/ea-cpp-games
@@ -155,6 +205,15 @@ flowchart TB
 > ```
 >
 > **Watch for:** All DISABLED\_ tests are still disabled. The green baseline must be confirmed before starting.
+
+> ⚠️ **Common pitfalls** (read once, avoid all session):
+>
+> - **Wrong directory.** Every `cmake`/`ctest --preset` command needs `cd output/ea-cpp-games`
+>   first. From the repo root the presets are invisible and the command fails.
+> - **Forgetting to rebuild after un-`DISABLED_`-ing a test.** `ctest` does **not** compile.
+>   Always `cmake --build --preset …` before `ctest`, or you test a stale binary.
+> - **Over-broad test filters.** Use the precise binary name (`-R test_game_loop`), not a
+>   substring like `-R long_run` — `ctest` filters on the test **binary**, not the GTest case.
 
 ---
 
@@ -237,11 +296,34 @@ ctest --preset default-debug --output-on-failure -R test_game_loop
 
 > **Say:** "Four minutes. Root cause identified, test reproducing, fix verified. That's the CoT workflow: observe → reproduce → bisect → fix → verify."
 
-> **Reset before the next demo:** Demo B must start from the clean seeded baseline (BUG-002
-> re-DISABLED, the `float`→`double` fix reverted). From `output/ea-cpp-games/`, run
-> `./reset_workshop.sh` — it reverts the seeded source + tests, rebuilds, and confirms a green
-> baseline before you continue. (Equivalent manual step: `git restore tests/engine_demo
-> src/engine_demo include/engine_demo` then rebuild.)
+> **What good looks like** (facilitator safety net — do not read aloud). A strong BUG-002
+> resolution will:
+>
+> - Name the **root cause precisely**: a `float` accumulator loses precision; `1.0/60.0` is
+>   not representable and rounding error compounds over ~1800 frames.
+> - **Trace the value** to the `float` accumulator/cast where precision is lost — not just
+>   "use double somewhere."
+> - **Cite Article 5 (Determinism)** as the constitution rule the bug violates.
+> - Propose the **minimal fix**: widen the accumulator to `double` — a roughly two-file diff
+>   (source + the re-enabled test). No new guard, no `std::`.
+>
+> If Copilot offers a `float` epsilon tolerance instead of widening the type, that is the
+> teachable miss — steer back to "change the type, not the test."
+
+> 🔧 **Reset before Demo B** — Demo B must start from the clean seeded baseline (BUG-002
+> re-`DISABLED_`, the `float`→`double` fix reverted). Paste into the **Agent** panel:
+
+```text
+@logic-bug-planner
+Reset output/ea-cpp-games/ to the clean seeded baseline before the next demo:
+1. Run ./reset_workshop.sh.
+2. Report its final READY / NOT READY line verbatim.
+3. Confirm long_run_does_not_drift is DISABLED_ again and ctest --preset default-debug is green.
+Do not apply or keep any fix.
+```
+
+> **Manual fallback:** from `output/ea-cpp-games/`, run `git restore tests/engine_demo
+src/engine_demo include/engine_demo` then `cmake --build --preset default-debug`.
 
 ---
 
@@ -338,6 +420,22 @@ ctest --preset optimized --output-on-failure -R test_timer
 
 > **Say:** "The fix isn't 'make the guard better' — it's 'change the type so no guard is needed.' Copilot suggested the same fix the standard recommends."
 
+> **What good looks like** (facilitator safety net — do not read aloud). A strong BUG-007
+> resolution will:
+>
+> - Identify **signed-overflow undefined behavior** per `[expr.pre]/4`: the guard
+>   `m_elapsed_ms + delta_ms > m_elapsed_ms` assumes wraparound the standard forbids.
+> - Explain the **optimizer elision**: at `-O2` the compiler proves the comparison is always
+>   true for signed types and **deletes the branch** — which is why it passes at `-O0` and
+>   fails at `-O2`.
+> - Contrast the two presets explicitly (`default-debug` green, `optimized` red) as the
+>   reproduction, not a debugger.
+> - Propose the **type-level fix**: make `m_elapsed_ms` a `uint64_t` (defined wraparound) and
+>   **drop the now-useless guard** — not "rewrite the guard."
+>
+> If Copilot suggests `-fwrapv` or a bigger guard, name it as treating the symptom; the
+> standard-aligned fix is the unsigned type.
+
 ---
 
 ## 1d. Fallback Recovery Script
@@ -367,6 +465,18 @@ ctest --preset optimized --output-on-failure -R test_timer
 1. Navigate the project structure confidently.
 2. Build, run, and interpret test results.
 3. Understand the `DISABLED_` prefix pattern and test-first workflow.
+
+> 🔧 **Section Setup** — paste into the **Agent** panel to open the files this section walks
+> through:
+
+```text
+Open these files from output/ea-cpp-games/ in the editor so I can follow Section 2:
+- CMakePresets.json
+- tests/engine_demo/test_game_loop.cpp
+- src/engine_demo/sim/game_loop.cpp
+Then summarize, in 3 bullets, what the default-debug preset builds and where test
+binaries land. Do not modify anything.
+```
 
 ## 2a. Directory Structure
 
@@ -526,6 +636,16 @@ This enforces the constitutional Article 7 mandate: test-first workflow.
 1. Understand how AGENTS.md, constitution.md, and bug reports function as context layers.
 2. See concrete quality differences between zero-context, partial-context, and full-context prompts.
 3. Appreciate why EASTL vs. std:: constraints matter for Copilot accuracy.
+
+> 🔧 **Section Setup** — paste into the **Agent** panel to stage the three context artifacts:
+
+```text
+Open these context files from output/ea-cpp-games/ so I can compare prompts in Section 3:
+- AGENTS.md
+- specs/constitution.md
+- fixtures/bug-reports/ (list the BUG-004 report if present)
+Confirm each opened, then wait. Do not analyze or edit yet.
+```
 
 ## 3a. Context Artifact Roles
 
@@ -701,6 +821,24 @@ teardown context — no synchronization needed.
 
 > **Say:** "Version C is dramatically better — not because the model is 'smarter,' but because the context constrains the solution space. The constitution gives Copilot a rubric. AGENTS.md prevents std:: suggestions. The combination eliminates hedge language and surfaces the false-positive distinction that versions A and B miss entirely."
 
+### Scoring Rubric — Grade the Three Versions
+
+Use this to make the quality jump objective. Score each prompt's output 0 (absent) or 1
+(present) on five criteria; the expected totals are in the right column.
+
+| Criterion                                                    | Zero-context (A) | Partial (B) | Full (C) |
+| ------------------------------------------------------------ | ---------------- | ----------- | -------- |
+| Names the **real** root cause (not a guess)                  | 0                | 1           | 1        |
+| Is **platform/standard-specific** (cites behavior precisely) | 0                | 0           | 1        |
+| **Cites a constitution article** by number                   | 0                | 0           | 1        |
+| Disambiguates the **false positive** (e.g., FP-002/FP-003)   | 0                | 0           | 1        |
+| Proposes an **EASTL-aware** fix (no `std::`)                 | 0                | 1           | 1        |
+| **Expected total**                                           | **0–1**          | **2–3**     | **5**    |
+
+> **Teaching point:** the jump from B to C is not model quality — it is the constitution and
+> AGENTS.md collapsing the solution space. Show learners that the missing points in A and B
+> map one-to-one to a missing context file.
+
 ## 3c. EASTL vs. std:: — Why Context Matters
 
 ### Prompt: Why does this codebase use EASTL?
@@ -755,6 +893,16 @@ that violate Articles 1-4 and require manual correction.
 1. Build a custom Copilot agent mode from scratch.
 2. Define agent instructions, tools, and workflow for systematic bug resolution.
 3. Test the agent against real seeded defects.
+
+> 🔧 **Section Setup** — confirm the agent is installed and the baseline is green. Paste into
+> the **Agent** panel with `@logic-bug-planner` selected:
+
+```text
+@logic-bug-planner
+Self-check before Section 4: confirm you are loaded and report (a) which constitution
+articles you enforce, (b) the observe→reproduce→fix→verify gate you follow, and
+(c) that `ctest --preset default-debug` in output/ea-cpp-games/ is green. Do not fix anything.
+```
 
 ## 4a. Complete `logic-bug-planner.agent.md`
 
@@ -1059,6 +1207,15 @@ bool snapshot_equals(const replay_snapshot& a, const replay_snapshot& b) noexcep
 2. Compare CoT vs. ToT outputs to see when parallel reasoning adds value.
 3. Practice ToT on a real bug with known answer.
 
+> 🔧 **Section Setup** — paste into the **Agent** panel to open the BUG-004 files for the ToT
+> walkthrough:
+
+```text
+Open the BUG-004 source and header from output/ea-cpp-games/ (the non-determinism /
+trace-digest bug) plus specs/constitution.md so I can follow the Section 5 ToT analysis.
+List the exact file paths you opened, then wait. Do not propose fixes yet.
+```
+
 ## 5a. Full ToT Analysis — BUG-004 (Non-determinism)
 
 ### Prompt
@@ -1295,6 +1452,18 @@ Evaluate all hypotheses and converge on the root cause.
 1. Apply the four-gate HITL workflow to a real bug.
 2. Decide when to use HITL vs. fully autonomous vs. human-on-the-loop.
 3. Distinguish false positives from real bugs at each gate.
+
+> 🔧 **Section Setup** — confirm a clean baseline before walking the four gates. Paste into the
+> **Agent** panel with `@logic-bug-planner` selected:
+
+```text
+@logic-bug-planner
+Section 6 prep for output/ea-cpp-games/, analysis-only:
+1. Confirm ./reset_workshop.sh reports READY (run it if unsure).
+2. Confirm long_run_does_not_drift (BUG-002) is DISABLED_ in test_game_loop.cpp.
+3. Confirm `ctest --preset default-debug` is green.
+Report PASS/FAIL per item. Do not apply any fix — the gates are walked interactively.
+```
 
 ## 6a. Four-Gate HITL Walkthrough — BUG-002
 
@@ -1798,6 +1967,18 @@ The constitution exists to prevent classes of bugs that are catastrophic in game
 > ⚠️ Model-drift note: Exact output may vary across Copilot model updates. The file paths,
 > presets, and `DISABLED_` test names below are the stable contract — the prose Copilot
 > generates around them will differ.
+
+> 🔧 **Section Setup** — confirm the sweep prompt and a clean baseline before the optional
+> hands-on in 8c. Paste into the **Agent** panel:
+
+```text
+@logic-bug-planner
+Section 8 prep for output/ea-cpp-games/, analysis-only:
+1. Confirm ./reset_workshop.sh reports READY (run it if unsure).
+2. Confirm the sweep prompt exists: .github/prompts/logic-bug-sweep.prompt.md.
+3. Confirm `ctest --preset default-debug` is green.
+Report PASS/FAIL per item. Do not fix any bug — Section 8 is analysis + economics only.
+```
 
 ### 8a — Agentic loops: one run, many bugs
 

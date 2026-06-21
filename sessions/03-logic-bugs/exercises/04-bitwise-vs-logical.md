@@ -8,6 +8,14 @@ Resolve BUG-008 — `memcmp` over a struct with padding bytes makes two logicall
 identical `replay_state` values compare unequal — using a Tree-of-Thought prompt to
 surface competing hypotheses before committing to one.
 
+> 🔧 **Setup** — start from a clean baseline. Paste into the **Agent** panel:
+
+```text
+@logic-bug-planner
+Confirm output/ea-cpp-games/ is clean for BUG-008: ctest --preset default-debug is green and
+padding_does_not_affect_comparison is still DISABLED_. Run ./reset_workshop.sh if not. Do not fix.
+```
+
 ## Steps
 
 1. Open `tests/engine_demo/test_replay_state.cpp`, drop the `DISABLED_` prefix from
@@ -40,6 +48,14 @@ surface competing hypotheses before committing to one.
 
 4. In the **Edit** tab, apply the fix: replace `memcmp` with member-wise `operator==`
    (or `= default` comparison, C++20). Rerun ctest until green.
+
+## Common pitfalls
+
+- **Trusting one green run.** The failure is intermittent — uninitialized padding sometimes
+  matches. Run the test a few times; a single pass proves nothing.
+- **Zeroing padding instead of fixing the compare.** `memset`-ing the struct masks the
+  symptom but leaves `memcmp` comparing object representation. Replace the comparison.
+- **Hand-rolling `operator==`.** Prefer `= default` (C++20) so new members can't be forgotten.
 
 ## Acceptance
 

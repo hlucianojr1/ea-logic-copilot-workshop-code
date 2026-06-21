@@ -8,6 +8,14 @@ Resolve BUG-010 — a `-1` sentinel in an `int32_t` index is cast to `size_t`, b
 `SIZE_MAX` and defeating the bounds check — and measure CoT against ToT on the same bug
 to learn when each technique earns its cost.
 
+> 🔧 **Setup** — start from a clean baseline. Paste into the **Agent** panel:
+
+```text
+@logic-bug-planner
+Confirm output/ea-cpp-games/ is clean for BUG-010: ctest --preset default-debug is green and
+unstarted_does_not_read_oob is still DISABLED_. Run ./reset_workshop.sh if not. Do not fix.
+```
+
 ## Steps
 
 1. Open `tests/engine_demo/test_interpolator.cpp`, drop the `DISABLED_` prefix from
@@ -49,6 +57,15 @@ to learn when each technique earns its cost.
 5. Fix it in the **Edit** tab. Acceptable fixes: early-return on the sentinel before
    any conversion, or replacing the sentinel with `eastl::optional`-style state. The
    cast must never see `-1`. Rerun ctest until green.
+
+## Common pitfalls
+
+- **Widening the bounds check.** The defect is the `-1` → `size_t` conversion becoming
+  `SIZE_MAX`, not an off-by-one. Guard the sentinel _before_ the cast.
+- **Letting the cast see `-1`.** Any fix where `static_cast<size_t>` still receives the
+  sentinel is wrong. Early-return or change the representation.
+- **Skipping Round 1 (CoT).** The CoT-vs-ToT comparison is the lesson; don't jump straight to
+  the fix.
 
 ## Acceptance
 

@@ -11,6 +11,20 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **Session 03 teaching-detail pass across the training guide, learner guide, and exercises.**
+  Added copy-paste **setup prompts** (a master "Pre-flight Setup" block plus per-section 🔧
+  Setup blocks invoking `@logic-bug-planner` / `@logic-bug-tutor`, each with a manual
+  fallback) so instructors stand sections up correctly instead of running manual steps.
+  Added five recurring detail types to deepen the concepts: **"What good looks like"** rubrics
+  on Demos A/B (BUG-002, BUG-007), a **Scoring Rubric** table for grading the three prompt
+  versions in Section 3, **⚠️ Common pitfalls** callouts (wrong working directory, missing
+  rebuild after un-`DISABLED_`-ing, over-broad `-R` filters), and reset-between-bugs reminders.
+  Rewrote exercises `01` (embedded BUG-002 test-first prompts, concept box, expected output)
+  and `02` (concrete triage rubric and BUG-004/FP-002 expected verdicts) to be self-contained,
+  and added Setup + Common-pitfalls blocks to exercises `03`–`06`. Files touched:
+  `sessions/03-logic-bugs/logic-bug-workshop-training.md`,
+  `sessions/03-logic-bugs/learner-guide.md`, and `sessions/03-logic-bugs/exercises/01`–`06`.
+
 - **Session 03 pre-flight reset/readiness script.** New `output/ea-cpp-games/reset_workshop.sh`
   reverts the seeded engine_demo source + tests to the clean committed baseline (via
   `git restore`, never a destructive op), rebuilds the `default-debug` preset, confirms all 10

@@ -7,6 +7,15 @@
 Reproduce BUG-007 — a signed-overflow guard that "works" in Debug but is elided by the
 optimizer at `-O2` — and experience why Debug-only testing gives false confidence.
 
+> 🔧 **Setup** — start from a clean baseline so both presets reproduce predictably. Paste into
+> the **Agent** panel:
+
+```text
+@logic-bug-planner
+Confirm output/ea-cpp-games/ is clean for BUG-007: ctest --preset default-debug is green and
+overflow_guard_not_elided is still DISABLED_. Run ./reset_workshop.sh if not. Do not fix anything.
+```
+
 ## Steps
 
 1. Build and test in Debug first. Open `tests/engine_demo/test_timer.cpp`, drop the
@@ -48,6 +57,15 @@ optimizer at `-O2` — and experience why Debug-only testing gives false confide
    `std::numeric_limits<std::int64_t>::max() - delta`).
 
 5. Rerun **both** presets. The test must pass under `default-debug` **and** `optimized`.
+
+## Common pitfalls
+
+- **Testing only Debug.** That is the whole trap: a green `default-debug` run is _not_
+  evidence here. You must also run `ctest --preset optimized`.
+- **Reaching for `-fwrapv`.** That hides the UB by changing the dialect; the standard-aligned
+  fix is an unsigned type or an overflow-safe pre-check.
+- **Skipping the rebuild.** Switching presets requires `cmake --build --preset optimized`
+  before `ctest --preset optimized`.
 
 ## Acceptance
 

@@ -9,6 +9,15 @@ payload write — while correctly dismissing FP-003, the false positive that the
 "isn't atomic". This is the exercise where a sanitizer, not a debugger, is the right
 reproduction tool.
 
+> 🔧 **Setup** — start from a clean baseline. TSan requires the non-Windows `tsan` preset.
+> Paste into the **Agent** panel:
+
+```text
+@logic-bug-planner
+Confirm output/ea-cpp-games/ is clean for BUG-009: ctest --preset default-debug is green and
+consumer_observes_complete_payload is still DISABLED_. Run ./reset_workshop.sh if not. Do not fix.
+```
+
 ## Steps
 
 1. Open `tests/engine_demo/test_event_queue.cpp`, drop the `DISABLED_` prefix from
@@ -56,6 +65,15 @@ reproduction tool.
 
 4. Rebuild and rerun under `tsan`: TSAN is now silent and the test passes. Confirm
    `ctest --preset default-debug` stays green, then restore the `DISABLED_` prefix.
+
+## Common pitfalls
+
+- **Debugging instead of sanitizing.** A debugger won't reveal this race; TSan is the
+  reproduction tool. Use the `tsan` preset.
+- **Over-correcting to `seq_cst`.** Sequential consistency everywhere works but violates
+  Article 6 (lockless hot path). The fix is release/acquire on the exact pair.
+- **Confusing FP-003 with the bug.** `m_ready` _is_ `std::atomic<bool>`; atomicity was never
+  the problem — ordering is. Dismiss FP-003 explicitly.
 
 ## Acceptance
 

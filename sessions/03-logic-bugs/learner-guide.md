@@ -117,6 +117,22 @@ cd output/ea-cpp-games
 ctest --preset default-debug --output-on-failure
 ```
 
+> **What good looks like:** your diff widens `m_accumulator_seconds` to `double` and removes
+> the redundant `static_cast<float>` casts — two files (header + source), no new guard, no
+> `std::`. The re-enabled `long_run_does_not_drift` test passes and the suite stays green.
+>
+> **Reset before the next bug:** return to the clean baseline so BUG-006 starts fresh. In the
+> **Agent** panel, run:
+
+```text
+@logic-bug-tutor
+I finished BUG-002. Reset output/ea-cpp-games/ to the clean seeded baseline (revert my fix,
+re-DISABLE_ the test, rebuild) and confirm ctest --preset default-debug is green before BUG-006.
+```
+
+Manual equivalent: from `output/ea-cpp-games/`, run `git restore src/engine_demo
+include/engine_demo tests/engine_demo` then `cmake --build --preset default-debug`.
+
 ### BUG-006 — rolling-window off-by-one
 
 **1. Observe.** In the **Ask** tab, make Copilot enumerate slot states rather than infer them:
@@ -153,6 +169,10 @@ DISABLED_first_sample_is_not_double_counted_on_warmup.
 cd output/ea-cpp-games
 ctest --preset default-debug --output-on-failure
 ```
+
+> **What good looks like:** `rolling_average()` iterates the most-recent `m_count` samples in
+> wrap order and no longer double-counts the warm-up sample. The re-enabled
+> `first_sample_is_not_double_counted_on_warmup` test passes and the suite stays green.
 
 ### The rest of the set — let the tutor pace you
 
