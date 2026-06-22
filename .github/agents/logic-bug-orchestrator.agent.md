@@ -10,13 +10,16 @@ tools: [read, search, edit, execute, todo, agent]
 agents: [code-analysis, test-runner, constitution-checker]
 argument-hint: "Resolve BUG-XXX — <one-line symptom>"
 handoffs:
-  - agent: code-analysis
+  - label: "Analyze root cause"
+    agent: code-analysis
     prompt: "Analyze BUG-XXX: read its bug report and the implicated source, trace decl → mutation → use, and report the single suspected root cause with file:line evidence."
     send: false
-  - agent: test-runner
+  - label: "Reproduce failing test"
+    agent: test-runner
     prompt: "Reproduce BUG-XXX: enable its DISABLED_ regression test, build the correct preset, and run it twice. Report the failing assertion."
     send: false
-  - agent: constitution-checker
+  - label: "Audit fix vs constitution"
+    agent: constitution-checker
     prompt: "Audit the proposed fix for BUG-XXX article-by-article against specs/constitution.md, plus EASTL and determinism conventions. Return a Constitution Compliance Report."
     send: false
 ---
