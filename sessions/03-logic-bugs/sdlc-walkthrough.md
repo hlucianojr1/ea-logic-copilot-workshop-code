@@ -91,8 +91,8 @@ and runs the CoT/ToT discipline from
 Bug report: fixtures/bug-reports/BUG-002.md. Start with OBSERVE.
 ```
 
-Each gate surfaces as a **handoff button** the orchestrator emits with `send: false`,
-so nothing advances to the next phase until you click. You are the gate-keeper at four
+Each gate surfaces as a `🚦 GATE` block the orchestrator prints with the exact next prompt to
+paste, so nothing advances to the next phase until you paste it. You are the gate-keeper at four
 points (training Section 6):
 
 | Gate | Question                   | You approve only if…                                              |

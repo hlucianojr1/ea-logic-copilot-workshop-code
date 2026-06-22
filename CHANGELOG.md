@@ -33,6 +33,20 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- **Session 03 orchestrator gates simplified — removed redundant `handoffs:` buttons.** Deleted
+  the three `handoffs: send:false` buttons from
+  `.github/agents/logic-bug-orchestrator.agent.md` because they pre-filled the same prompts the
+  `🚦 GATE` blocks already print in the response body, giving learners two competing "next step"
+  signals. The four HITL gates now advance solely by pasting the exact prompt each gate block
+  prints, and the orchestrator body now calls out **Gate 4 (apply the fix) as the single
+  irreversible, pre-commit approval step**. Updated the teaching docs to match: the gate-table
+  row and Section 1e "orchestrator frontmatter" walkthrough in
+  `sessions/03-logic-bugs/logic-bug-workshop-training.md` (frontmatter example no longer shows
+  `handoffs:`; delegation-vs-gate explanation reframed around paste-prompts), and two
+  handoff-button references in `sessions/03-logic-bugs/facilitator-script.md`. The `agents:`
+  delegation allow-list is unchanged — delegation still drives the mesh; only the duplicate UI
+  buttons were removed.
+
 - **Session 03 resolver is now a true agentic mesh (orchestrator → sub-agents → HITL gates).**
   Replaced the single monolithic `logic-bug-planner` agent with an end-to-end **mesh** so the
   session teaches genuine multi-agent orchestration, not a one-file workflow. New files:

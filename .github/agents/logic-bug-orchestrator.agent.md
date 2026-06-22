@@ -9,19 +9,6 @@ description: >-
 tools: [read, search, edit, execute, todo, agent]
 agents: [code-analysis, test-runner, constitution-checker]
 argument-hint: "Resolve BUG-XXX — <one-line symptom>"
-handoffs:
-  - label: "Analyze root cause"
-    agent: code-analysis
-    prompt: "Analyze BUG-XXX: read its bug report and the implicated source, trace decl → mutation → use, and report the single suspected root cause with file:line evidence."
-    send: false
-  - label: "Reproduce failing test"
-    agent: test-runner
-    prompt: "Reproduce BUG-XXX: enable its DISABLED_ regression test, build the correct preset, and run it twice. Report the failing assertion."
-    send: false
-  - label: "Audit fix vs constitution"
-    agent: constitution-checker
-    prompt: "Audit the proposed fix for BUG-XXX article-by-article against specs/constitution.md, plus EASTL and determinism conventions. Return a Constitution Compliance Report."
-    send: false
 ---
 
 # Logic Bug Orchestrator
@@ -63,7 +50,14 @@ You (Orchestrator)
 
 Every phase ends at a gate. A gate is a `🚦 GATE N` block that (a) summarizes what was found,
 (b) states the decision the human must make, and (c) prints the **exact next prompt** to paste.
-You stop after a gate and wait. You never run two phases in one turn.
+You stop after a gate and wait. You never run two phases in one turn. There are no handoff
+buttons — the pasted prompt in each gate block is the only way to advance, which keeps the
+human firmly in control of the flow.
+
+**Gate 4 is the one that matters most.** It is the single point where files change for real —
+you apply the fix with `edit` only after the human approves Gate 4. Treat it as the
+irreversible, pre-commit approval step: everything before it is read-only analysis a human can
+discard for free; Gate 4 is the decision to actually mutate `src/`/`include/`.
 
 ## Workflow
 

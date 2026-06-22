@@ -163,7 +163,7 @@ flowchart TB
 | Sub-Agent · Test Runner          | `.github/agents/test-runner.agent.md`                      | `read, search, edit, execute` — REPRODUCE / VERIFY via ctest              |
 | Sub-Agent · Constitution Checker | `.github/agents/constitution-checker.agent.md`             | `read, search` (read-only) — article-by-article FIX audit                 |
 | Reasoning Engine (CoT + ToT)     | `.github/instructions/reasoning-cot-tot.instructions.md`   | the orchestrator's hypothesis discipline (not a separate agent)           |
-| Gate 1–4 (Human-in-the-Loop)     | `handoffs:` buttons + `🚦 GATE` blocks in the orchestrator | post-response approval, `send: false`                                     |
+| Gate 1–4 (Human-in-the-Loop)     | `🚦 GATE` blocks in the orchestrator body                  | post-response stop; each gate prints the exact next prompt to paste       |
 
 > **Say:** "The orchestrator holds the `agent` tool and an `agents:` allow-list — that's what
 > lets it call the sub-agents as subroutines. The sub-agents are deliberately narrow: two are
@@ -532,13 +532,14 @@ Accept, rebuild `optimized`, rerun → green. In the mesh, `constitution-checker
 > **Say:** "We just watched the **mesh** resolve BUG-002 and BUG-007 — one prompt to the
 > orchestrator, four sub-agent calls, four human gates. Now let's open the hood. Every box on
 > the architecture diagram is a real `.agent.md` file in `.github/agents/`. Let's see how the
-> orchestrator knows about its sub-agents and how the handoffs become those 🚦 gate buttons."
+> orchestrator knows about its sub-agents and how it stops at those 🚦 gate blocks."
 
 By the end of this block you will be able to:
 
-1. Read an orchestrator agent and identify the `agents:` and `handoffs:` keys that turn the
-   diagram into a runnable mesh.
-2. Explain how delegation (the `agent` tool) and handoffs (the gate buttons) differ.
+1. Read an orchestrator agent and identify the `agents:` key and the `🚦 GATE` blocks that turn
+   the diagram into a runnable mesh.
+2. Explain how delegation (the `agent` tool) and the HITL gates (the `🚦 GATE` paste-prompt
+   stops) differ.
 3. Locate the four agent files and the shared reasoning instructions, and trace which diagram
    box each one maps to.
 
@@ -574,8 +575,8 @@ delegate to, (b) the four human-in-the-loop gates you stop at, and (c) that
 ### How the diagram becomes a mesh — the orchestrator frontmatter
 
 > **Do:** Open `.github/agents/logic-bug-orchestrator.agent.md` and read its frontmatter. The
-> two keys that turn a diagram into a runnable workflow are `agents:` (who it can delegate to)
-> and `handoffs:` (the pre-filled 🚦 gate buttons):
+> key that turns a diagram into a runnable workflow is `agents:` — the allow-list of sub-agents
+> the orchestrator can delegate to:
 
 ```markdown
 ---
@@ -583,27 +584,22 @@ name: logic-bug-orchestrator
 tools: [read, search, edit, execute, todo, agent]
 agents: [code-analysis, test-runner, constitution-checker]
 argument-hint: "Resolve BUG-XXX — <one-line symptom>"
-handoffs:
-  - agent: code-analysis
-    prompt: "Analyze BUG-XXX: trace decl → mutation → use, report the root cause with file:line."
-    send: false # opens a review gate instead of auto-sending — this is Gate 1
-  - agent: test-runner
-    prompt: "Reproduce BUG-XXX: enable its DISABLED_ test, build the right preset, run it twice."
-    send: false
-  - agent: constitution-checker
-    prompt: "Audit the proposed fix article-by-article against specs/constitution.md."
-    send: false
 ---
 ```
 
 > **Say:** "`agents:` plus the `agent` tool is **delegation** — the orchestrator _calls_ a
-> sub-agent and quotes its report back. `handoffs:` with `send: false` is the **HITL gate** —
-> it pre-fills a prompt to the next agent but stops so a human can review and click. Delegation
-> is how work flows; handoffs are how _humans stay in control of the flow_."
+> sub-agent and quotes its report back. The **HITL gates** are not buttons; they're the
+> `🚦 GATE` blocks the orchestrator prints in its response body. Each gate stops the run and
+> hands you the **exact next prompt to paste** — that pasted prompt is the only way to advance,
+> which is how humans stay in control of the flow. We deliberately removed the old `handoffs:`
+> buttons: they pre-filled the same prompts the gate blocks already print, so learners saw two
+> competing 'next step' signals. One signal — the paste-prompt — is clearer."
 
-> **Watch for:** Learners conflating the two. Delegation = orchestrator → sub-agent (automatic,
-> quoted back). Handoff = a button a human approves. The four 🚦 gates in the demo were
-> handoffs.
+> **Watch for:** Learners conflating the two mechanisms. Delegation = orchestrator → sub-agent
+> (automatic, quoted back). Gate = a `🚦 GATE` block where the run stops and a human pastes the
+> printed prompt to continue. The four gates in the demo were paste-prompt stops, and **Gate 4
+> (apply the fix)** is the one irreversible approval — the only point where files actually
+> change.
 
 ### Read the sub-agents and the reasoning engine
 
@@ -706,7 +702,7 @@ Will run after fix is approved and applied:
 > `code-analysis`, `test-runner`, `constitution-checker`) plus
 > `.github/instructions/reasoning-cot-tot.instructions.md`, and confirm they match the mesh
 > described in 1e. (They ship with the workspace — review and confirm rather than recreating.)
-> Pay attention to the orchestrator's `agents:` and `handoffs:` keys.
+> Pay attention to the orchestrator's `agents:` key and the `🚦 GATE` blocks in its body.
 
 ### Step 2: Test with a simple bug
 
