@@ -11,7 +11,7 @@ to learn when each technique earns its cost.
 > 🔧 **Setup** — start from a clean baseline. Paste into the **Agent** panel:
 
 ```text
-@logic-bug-planner
+@logic-bug-resolver-lite
 Confirm output/ea-cpp-games/ is clean for BUG-010: ctest --preset default-debug is green and
 unstarted_does_not_read_oob is still DISABLED_. Run ./reset_workshop.sh if not. Do not fix.
 ```

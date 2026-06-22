@@ -50,12 +50,12 @@
 
 Run this **once** before the room arrives. It guarantees a clean, green, seeded baseline so
 every demo and exercise starts from the same state. The fastest path is to hand the whole
-check to the planner agent; a manual fallback follows.
+check to the orchestrator agent; a manual fallback follows.
 
-> 🔧 **Setup prompt** — paste into the **Agent** panel with `@logic-bug-planner` selected:
+> 🔧 **Setup prompt** — paste into the **Agent** panel with `@logic-bug-orchestrator` selected:
 
 ```text
-@logic-bug-planner
+@logic-bug-orchestrator
 Prepare the Session-03 baseline in output/ea-cpp-games/. Do exactly this, no fixes:
 1. Run ./reset_workshop.sh and report its final READY / NOT READY line verbatim.
 2. Confirm `ctest --preset default-debug` is fully green.
@@ -86,10 +86,12 @@ custom-agent build (1e–1h) includes expected Copilot output inline.
 
 ## Learning Objectives
 
-1. Witness the end-to-end agentic workflow resolving two real C++ logic bugs.
+1. Witness an **end-to-end agentic mesh** — an orchestrator delegating to three sub-agents —
+   resolve two real C++ logic bugs.
 2. Understand the three reasoning techniques: Chain of Thought, Tree of Thought, Human-in-the-Loop.
 3. See how layered context (constitution + AGENTS.md) shapes Copilot's analysis quality.
-4. Encode that workflow into a reusable custom agent (`logic-bug-planner`) and run it on real defects.
+4. Map the architecture diagram onto **real, runnable agent files** — orchestrator, sub-agents,
+   and the shared reasoning instructions — and drive a bug through all four HITL gates.
 
 ## 1a. Architecture Diagram — Agentic Logic Bug Resolver
 
@@ -148,6 +150,26 @@ flowchart TB
     Review -->|"Revise"| Hypothesize
 ```
 
+### Every box on this diagram is a real file
+
+> **Say:** "This isn't slideware. Each box maps to a file you can open right now in
+> `.github/agents/`. The orchestrator is the entry point; it _delegates_ to the three
+> sub-agents and runs the Reasoning Engine itself."
+
+| Diagram element                  | Real artifact                                              | Tools / role                                                              |
+| -------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 🤖 Orchestrator                  | `.github/agents/logic-bug-orchestrator.agent.md`           | `read, search, edit, execute, todo, agent` — entry point, applies the fix |
+| Sub-Agent · Code Analysis        | `.github/agents/code-analysis.agent.md`                    | `read, search` (read-only) — OBSERVE data-flow trace                      |
+| Sub-Agent · Test Runner          | `.github/agents/test-runner.agent.md`                      | `read, search, edit, execute` — REPRODUCE / VERIFY via ctest              |
+| Sub-Agent · Constitution Checker | `.github/agents/constitution-checker.agent.md`             | `read, search` (read-only) — article-by-article FIX audit                 |
+| Reasoning Engine (CoT + ToT)     | `.github/instructions/reasoning-cot-tot.instructions.md`   | the orchestrator's hypothesis discipline (not a separate agent)           |
+| Gate 1–4 (Human-in-the-Loop)     | `handoffs:` buttons + `🚦 GATE` blocks in the orchestrator | post-response approval, `send: false`                                     |
+
+> **Say:** "The orchestrator holds the `agent` tool and an `agents:` allow-list — that's what
+> lets it call the sub-agents as subroutines. The sub-agents are deliberately narrow: two are
+> read-only. Only the orchestrator and the test-runner touch files, and only the orchestrator
+> applies the actual fix — after the constitution-checker clears it."
+
 ## 1b. Three Reasoning Techniques
 
 > **Say:** "Before we touch the keyboard, let's name the three reasoning patterns you'll see Copilot use today. These aren't marketing terms — they're from the research literature."
@@ -177,10 +199,10 @@ flowchart TB
 ### Pre-demo checklist (T-5 min)
 
 > 🔧 **Section Setup** — confirm the baseline and stage the files. Paste into the **Agent**
-> panel with `@logic-bug-planner` selected:
+> panel with `@logic-bug-orchestrator` selected:
 
 ```text
-@logic-bug-planner
+@logic-bug-orchestrator
 We are about to run the Section 1 live demo for BUG-002 and BUG-007 in
 output/ea-cpp-games/. Verify readiness only — do NOT fix anything:
 1. Confirm `ctest --preset default-debug` is green.
@@ -220,11 +242,67 @@ game_loop.cpp, test_game_loop.cpp, timer.cpp, timer.h.
 
 ### Demo Part A: BUG-002 — Float Accumulator Drift (~10 min)
 
-> **Say:** "Let's start with a bug that never crashes, never throws, and never appears in any log. A long replay diverges after 30 seconds. The only symptom is: the substep count oscillates between 0 and 1 instead of being a steady 1. Let's see if Copilot can find the root cause."
+> **Say:** "Let's start with a bug that never crashes, never throws, and never appears in any log. A long replay diverges after 30 seconds. The only symptom is: the substep count oscillates between 0 and 1 instead of being a steady 1. Watch how the **orchestrator** drives this — it delegates the looking to sub-agents and stops at each gate for us."
 
-#### Step 1: Observe — Ask Copilot to analyze
+#### Run it — one invocation, four gates
 
-> **Do:** Open the Copilot **Ask** panel. Type this prompt exactly:
+> 🔧 **Drive the mesh** — paste into the **Agent** panel with `@logic-bug-orchestrator`
+> selected:
+
+```text
+@logic-bug-orchestrator Resolve BUG-002 — a long replay diverges from the reference
+run after ~30 simulated seconds at 60 FPS; advance() returns a substep count that
+oscillates between 0 and 1 instead of a steady 1.
+```
+
+> **Say:** "I sent _one_ prompt. The orchestrator now runs the loop from the diagram — and it
+> hands control back to me four times. Let's watch each phase."
+
+**Phase 1 · OBSERVE → 🚦 Gate 1 (Diagnosis).** The orchestrator delegates to the
+**`code-analysis`** sub-agent (read-only) for the data-flow trace, then to
+**`constitution-checker`** for the article citation, and pauses:
+
+> **Watch for:** The orchestrator quotes `code-analysis` naming `float m_accumulator_seconds`
+> and the `static_cast<float>(delta_seconds)` narrowing path, and `constitution-checker`
+> citing **Article 5 (determinism)**. Gate 1 asks you to approve the diagnosis before any test
+> is touched. If Article 5 is missing, reply: "Which constitutional article does this violate?"
+
+> **Say:** "Notice the orchestrator didn't do the reading itself — it _delegated_ to a
+> read-only sub-agent and quoted the report back. That separation is the whole point: the
+> looker can't accidentally edit."
+
+**Phase 2 · REPRODUCE → 🚦 Gate 3 (Red test).** On approval, the orchestrator delegates to
+the **`test-runner`** sub-agent, which removes the `DISABLED_` prefix, rebuilds, and runs the
+test:
+
+> **Watch for:** `test-runner` reports the test FAILS with `substep drift at frame 3599` —
+> the float loop fires 2159 substeps where the double reference fires 2160 over 36 seconds.
+> Gate 3 confirms we have a **red** test before proposing a fix. Test-first discipline: never
+> fix what you can't reproduce.
+
+**Phase 3 · FIX → 🚦 Gate 2 (Constitution) → 🚦 Gate 4 (Apply).** The orchestrator drafts the
+fix (promote the accumulator to `double`, drop redundant casts), sends it to
+**`constitution-checker`** for an article-by-article audit, then pauses for apply approval:
+
+> **Watch for:** `constitution-checker` clears Articles 1, 2, and 5. Gate 4 is the only point
+> where files change for real — the **orchestrator** applies the fix (it holds `edit`; the
+> sub-agents that looked at the code never could).
+
+**Phase 4 · VERIFY.** After applying, the orchestrator delegates to `test-runner` once more to
+rebuild and rerun:
+
+> **Watch for:** Green. The test passes.
+
+> **Say:** "One prompt, four human decisions, a mesh of four agents. Root cause, red test,
+> constitution-cleared fix, verified green — and a human approved every irreversible step."
+
+<details>
+<summary><strong>Under the hood — what the orchestrator automated (manual Ask→Edit contrast)</strong></summary>
+
+> **Say (optional):** "Before we had the mesh, this is the manual mode-switching the
+> orchestrator now does for you. Same three phases — but _you_ drive every panel switch."
+
+**Step 1 · Observe — Ask Copilot to analyze.** Open the **Ask** panel and type:
 
 ```text
 #file:output/ea-cpp-games/include/engine_demo/sim/game_loop.h
@@ -236,13 +314,10 @@ The substep count returned by advance() oscillates between 0 and 1 instead of be
 a steady 1. Identify the root cause. Cite which constitutional article is violated.
 ```
 
-> **Watch for:** Copilot identifies `float m_accumulator_seconds` as the root cause and cites Article 5 (determinism). If Copilot does not cite Article 5, prompt: "Which constitutional article does this violate?"
+> Copilot should name `float m_accumulator_seconds` and cite Article 5. This is what the
+> orchestrator delegates to `code-analysis` + `constitution-checker` in Phase 1.
 
-> **Say:** "Notice Copilot didn't just say 'use double.' It traced the narrowing path — `static_cast<float>(delta_seconds)` — and connected it to the constitutional mandate. That's the context layer doing its job."
-
-#### Step 2: Reproduce — Enable the regression test
-
-> **Do:** In the **Ask** panel:
+**Step 2 · Reproduce — enable the regression test.** In the **Ask** panel:
 
 ```text
 #file:output/ea-cpp-games/tests/engine_demo/test_game_loop.cpp
@@ -251,8 +326,7 @@ Re-enable the DISABLED_long_run_does_not_drift test by removing the DISABLED_ pr
 Explain in one sentence why this test will fail.
 ```
 
-> **Do:** Apply the edit (remove `DISABLED_` prefix). Rebuild so GoogleTest registers the
-> newly enabled test, then run (from `output/ea-cpp-games/`):
+Apply the edit, then (from `output/ea-cpp-games/`):
 
 ```bash
 cd output/ea-cpp-games
@@ -260,20 +334,11 @@ cmake --build --preset default-debug
 ctest --preset default-debug --output-on-failure -R test_game_loop
 ```
 
-> **Note:** `ctest` does **not** compile. Skipping the rebuild after removing `DISABLED_`
-> yields `No tests were found!!!` because the renamed test was never compiled in.
+> `ctest` does **not** compile — skipping the rebuild yields `No tests were found!!!`. ctest
+> filters on the **binary** (`-R test_game_loop`), not the GTest case. This is exactly the
+> `test-runner` sub-agent's job in Phase 2.
 
-> **Note:** ctest registers tests **per binary**, not per GoogleTest case. The `-R` filter
-> matches the binary name (`test_game_loop`), so the whole timer-loop binary runs and the
-> `long_run` case fails inside it. A case-name filter like `-R long_run` matches nothing.
-
-> **Watch for:** The test fails with `substep drift at frame 3599` and `cumulative substep drift over 3600 frames` — the float loop fires 2159 substeps where the inline double reference fires 2160 over 36 simulated seconds.
-
-> **Say:** "Phase 2 complete — we have a red test. This is the test-first discipline: never fix what you can't reproduce."
-
-#### Step 3: Fix — Apply the CoT-guided fix
-
-> **Do:** Switch to **Edit** mode. Type:
+**Step 3 · Fix — apply the CoT-guided fix.** Switch to **Edit** mode:
 
 ```text
 #file:output/ea-cpp-games/include/engine_demo/sim/game_loop.h
@@ -283,19 +348,10 @@ Promote m_accumulator_seconds from float to double. Remove now-redundant
 static_cast<float> calls. Constitutional articles 1, 2, and 5 must hold.
 ```
 
-> **Watch for:** The diff changes the member type in the header and drops the casts in the `.cpp`. If Copilot leaves any casts, ask: "Are any casts now redundant?"
+Accept the edit, rebuild, rerun the same `ctest` line → green. In the mesh, the orchestrator
+runs the `constitution-checker` audit (Gate 2) and applies this fix itself after Gate 4.
 
-> **Do:** Accept the edit, rebuild, then rerun (from `output/ea-cpp-games/`):
-
-```bash
-cd output/ea-cpp-games
-cmake --build --preset default-debug
-ctest --preset default-debug --output-on-failure -R test_game_loop
-```
-
-> **Watch for:** Green. The test passes.
-
-> **Say:** "Four minutes. Root cause identified, test reproducing, fix verified. That's the CoT workflow: observe → reproduce → bisect → fix → verify."
+</details>
 
 > **What good looks like** (facilitator safety net — do not read aloud). A strong BUG-002
 > resolution will:
@@ -315,7 +371,7 @@ ctest --preset default-debug --output-on-failure -R test_game_loop
 > re-`DISABLED_`, the `float`→`double` fix reverted). Paste into the **Agent** panel:
 
 ```text
-@logic-bug-planner
+@logic-bug-orchestrator
 Reset output/ea-cpp-games/ to the clean seeded baseline before the next demo:
 1. Run ./reset_workshop.sh.
 2. Report its final READY / NOT READY line verbatim.
@@ -332,17 +388,65 @@ src/engine_demo include/engine_demo` then `cmake --build --preset default-debug`
 
 > **Say:** "Now let's look at a nastier class of bug — one that works in Debug but breaks in Release. This is the kind of bug that ships to certification."
 
-#### Step 1: Set the stage
+#### Step 1: Set the stage — the suspicious guard
 
 > **Do:** Open `src/engine_demo/sim/timer.cpp` and `include/engine_demo/sim/timer.h` side by side.
 
 > **Say:** "Read the overflow guard on line 32 of timer.cpp: `if (m_elapsed_ms + delta_ms > m_elapsed_ms)`. Looks defensive, right? It's checking for overflow. Raise your hand if you'd approve this in code review."
 
-> **Watch for:** Most hands go up. This is the teaching moment.
+> **Watch for:** Most hands go up. This is the teaching moment — now let the mesh prove them wrong.
 
-#### Step 2: Ask Copilot to analyze
+#### Step 2: Run it — one invocation, four gates
 
-> **Do:** In the **Ask** panel:
+> 🔧 **Drive the mesh** — paste into the **Agent** panel with `@logic-bug-orchestrator`
+> selected:
+
+```text
+@logic-bug-orchestrator Resolve BUG-007 — timer.cpp guards overflow with
+`m_elapsed_ms + delta_ms > m_elapsed_ms`, but the timer drifts/misbehaves only in
+the optimized (-O2) build and not in Debug.
+```
+
+> **Say:** "Same single prompt, same mesh. But this bug is signed-overflow UB, so the
+> interesting work happens in Phase 1 reasoning and in _which preset_ the test-runner uses to
+> reproduce."
+
+**Phase 1 · OBSERVE → 🚦 Gate 1 (Diagnosis).** The orchestrator delegates to **`code-analysis`**
+and **`constitution-checker`**:
+
+> **Watch for:** `code-analysis` explains that signed overflow is UB per `[expr.pre]/4`, so a
+> conforming optimizer proves `(x + positive) > x` is always true and **elides the guard** at
+> -O2. `constitution-checker` cites Article 5 (determinism) and Article 1 (defined behavior).
+> Gate 1 asks you to approve before any test runs.
+
+> **Say:** "'It works in Debug' is never validation — the compiler is doing exactly what the
+> standard permits. The orchestrator's reasoning engine reached that through Tree-of-Thought:
+> it weighed `-fwrapv`, a bigger guard, and the unsigned type — and rejected the first two."
+
+**Phase 2 · REPRODUCE → 🚦 Gate 3 (Red test).** The orchestrator delegates to **`test-runner`**,
+which knows from the preset map that BUG-007 reproduces only under the **`optimized`** preset:
+
+> **Watch for:** `test-runner` enables `overflow_guard_not_elided`, builds the `optimized`
+> preset, and reports it **FAILS** at -O2 — then notes the same test **passes** under
+> `default-debug` at -O0. That preset contrast _is_ the lesson. Gate 3 confirms the red.
+
+**Phase 3 · FIX → 🚦 Gate 2 (Constitution) → 🚦 Gate 4 (Apply).** The orchestrator drafts the
+type-level fix (make `m_elapsed_ms` a `std::uint64_t`, delete the UB guard, update signatures),
+audits it via **`constitution-checker`**, then pauses for apply approval:
+
+> **Watch for:** `constitution-checker` clears Articles 1 and 5 — unsigned wraparound is
+> defined and takes ~584 million years at 1 ms resolution. The orchestrator applies the fix
+> at Gate 4. The fix is "change the type so no guard is needed," not "make the guard better."
+
+**Phase 4 · VERIFY.** The orchestrator delegates to `test-runner` to rebuild and rerun the
+`optimized` preset:
+
+> **Watch for:** Green at -O2. Nothing is elided because there is no longer any UB to exploit.
+
+<details>
+<summary><strong>Under the hood — what the orchestrator automated (manual Ask→Edit contrast)</strong></summary>
+
+**Analyze (Ask panel):**
 
 ```text
 #file:output/ea-cpp-games/include/engine_demo/sim/timer.h
@@ -354,49 +458,24 @@ effective at -O2 optimization level. Explain what the C++ standard says about
 signed integer overflow and how a conforming optimizer treats this code.
 ```
 
-> **Watch for:** Copilot explains that signed overflow is UB per [expr.pre]/4, and the optimizer legally reasons that `(x + positive) > x` is always true → branch is unconditional → guard is elided.
-
-> **Say:** "This is why 'it works in Debug' is never validation. The compiler is doing exactly what the standard permits."
-
-#### Step 3: Reproduce
-
-> **Do:** Enable `DISABLED_overflow_guard_not_elided` in `tests/engine_demo/test_timer.cpp`
-> (remove the `DISABLED_` prefix — it is on line 46).
-
-> **Do:** Configure **and build** the optimized (-O2) preset, where the elision actually
-> bites. The `build-optimized/` tree may not exist yet, so the `cmake --preset` configure
-> step is required the first time (from `output/ea-cpp-games/`):
+**Reproduce (the preset contrast the `test-runner` sub-agent encodes):** enable
+`DISABLED_overflow_guard_not_elided` in `tests/engine_demo/test_timer.cpp` (line 46), then
+from `output/ea-cpp-games/`:
 
 ```bash
 cd output/ea-cpp-games
 cmake --preset optimized          # first run only: creates build-optimized/
 cmake --build --preset optimized  # compiles the now-enabled test
-ctest --preset optimized --output-on-failure -R test_timer
-```
-
-> **Do:** For contrast, rebuild and run the same test in the Debug (-O0) preset — it passes
-> by accident because the guard is not elided:
-
-```bash
-cd output/ea-cpp-games
+ctest --preset optimized --output-on-failure -R test_timer   # FAILS at -O2
 cmake --build --preset default-debug
-ctest --preset default-debug --output-on-failure -R test_timer
+ctest --preset default-debug --output-on-failure -R test_timer  # PASSES at -O0
 ```
 
-> **Note:** `ctest` never compiles. Two failure modes if you skip the build steps:
-> `No tests were found!!!` (the `DISABLED_` test was never compiled in), or stale results
-> from a prior build. Always `cmake --build` the preset before its `ctest` run.
+> `ctest` never compiles — always `cmake --build` the preset first, or you get
+> `No tests were found!!!` / stale results. ctest filters on the **binary** (`-R test_timer`),
+> not the case (`overflow_guard_not_elided`).
 
-> **Note:** ctest registers tests **per binary**, so the `-R` filter is the binary name
-> (`test_timer`), not the GoogleTest case (`overflow_guard_not_elided`). The whole
-> `test_timer` binary runs (4 cases); the overflow case fails inside it at -O2. A filter
-> like `-R overflow` matches nothing and reports `No tests were found!!!`.
-
-> **Watch for:** `optimized` FAILS (the signed-overflow guard is deleted at -O2); `default-debug` PASSES (the guard runs at -O0). That contrast is the entire lesson — "works in Debug" is not validation.
-
-#### Step 4: Fix
-
-> **Do:** In **Edit** mode:
+**Fix (Edit mode):**
 
 ```text
 #file:output/ea-cpp-games/include/engine_demo/sim/timer.h
@@ -407,19 +486,10 @@ unsigned wraparound is defined behavior and takes ~584 million years at 1ms reso
 Update tick() return type and elapsed_ms() accordingly. Constitutional articles 1, 5 must hold.
 ```
 
-> **Watch for:** Copilot changes the type in the header, updates the function signatures, and removes the UB guard.
+Accept, rebuild `optimized`, rerun → green. In the mesh, `constitution-checker` audits this
+(Gate 2) and the orchestrator applies it after Gate 4.
 
-> **Do:** Accept the edit, rebuild the optimized preset, then rerun to confirm green (from `output/ea-cpp-games/`):
-
-```bash
-cd output/ea-cpp-games
-cmake --build --preset optimized
-ctest --preset optimized --output-on-failure -R test_timer
-```
-
-> **Watch for:** Green at -O2. The unsigned type makes wraparound defined, so no guard is needed and nothing is elided.
-
-> **Say:** "The fix isn't 'make the guard better' — it's 'change the type so no guard is needed.' Copilot suggested the same fix the standard recommends."
+</details>
 
 > **What good looks like** (facilitator safety net — do not read aloud). A strong BUG-007
 > resolution will:
@@ -457,111 +527,110 @@ ctest --preset optimized --output-on-failure -R test_timer
 
 ---
 
-## 1e. Build the Custom Agent — `logic-bug-planner`
+## 1e. Build the Agentic Workflow — Orchestrator + Sub-Agents
 
-> **Say:** "We just resolved BUG-002 and BUG-007 live. Now we encode that exact
-> observe → reproduce → fix → verify workflow into a reusable custom agent — so we never
-> retype the constitution, the `DISABLED_` pattern, and the ctest commands again."
+> **Say:** "We just watched the **mesh** resolve BUG-002 and BUG-007 — one prompt to the
+> orchestrator, four sub-agent calls, four human gates. Now let's open the hood. Every box on
+> the architecture diagram is a real `.agent.md` file in `.github/agents/`. Let's see how the
+> orchestrator knows about its sub-agents and how the handoffs become those 🚦 gate buttons."
 
 By the end of this block you will be able to:
 
-1. Build a custom Copilot agent mode from scratch.
-2. Define agent instructions, tools, and workflow for systematic bug resolution.
-3. Test the agent against real seeded defects.
+1. Read an orchestrator agent and identify the `agents:` and `handoffs:` keys that turn the
+   diagram into a runnable mesh.
+2. Explain how delegation (the `agent` tool) and handoffs (the gate buttons) differ.
+3. Locate the four agent files and the shared reasoning instructions, and trace which diagram
+   box each one maps to.
 
-> 🔧 **Block Setup** — confirm the agent is installed and the baseline is green. Paste into
-> the **Agent** panel with `@logic-bug-planner` selected:
-
-```text
-@logic-bug-planner
-Self-check before the agent block: confirm you are loaded and report (a) which constitution
-articles you enforce, (b) the observe→reproduce→fix→verify gate you follow, and
-(c) that `ctest --preset default-debug` in output/ea-cpp-games/ is green. Do not fix anything.
-```
-
-> **Say:** "Instead of typing the same context attachments and workflow instructions into every prompt, we encode them into a custom agent mode. This is the 'logic-bug-planner' — a specialized Copilot agent that knows the constitution, knows the DISABLED\_ pattern, and follows a strict observe→reproduce→fix→verify workflow."
-
-Create file `.github/agents/logic-bug-planner.agent.md`:
-
-````markdown
----
-name: logic-bug-planner
-description: >
-  Systematic logic bug resolver for the engine_demo C++20 game-engine workspace.
-  Follows observe → reproduce → fix → verify workflow with constitutional compliance
-  checks at every step.
-tools:
-  - codebase
-  - terminal
-  - editFile
----
-
-# Logic Bug Planner
-
-You are an expert C++20 game-engine debugger working in the `output/ea-cpp-games/`
-workspace. You resolve logic bugs using a strict four-phase workflow.
-
-## Context (always loaded)
-
-- **AGENTS.md** at `output/ea-cpp-games/AGENTS.md` — workspace rules.
-- **Constitution** at `output/ea-cpp-games/specs/constitution.md` — 8 non-negotiable articles.
-- **Bug catalog** at `output/ea-cpp-games/fixtures/seeded-bugs.md`.
-
-## Hard constraints
-
-1. **No std:: containers** in committed code. Use EASTL equivalents.
-2. **No exceptions, no RTTI.** Compiled with `-fno-exceptions -fno-rtti`.
-3. **Allocator-aware.** Every container takes an explicit `engine_demo::allocator`.
-4. **Test-first.** Always enable the DISABLED\_ regression test BEFORE applying the fix.
-5. **HITL gates.** Pause for human approval between diagnosis and fix.
-
-## Four-phase workflow
-
-### Phase 1: OBSERVE
-
-- Read the bug report from `fixtures/bug-reports/BUG-XXX.md`.
-- Read the source file and its header.
-- State the symptom in one sentence.
-
-### Phase 2: REPRODUCE
-
-- Find the DISABLED\_ regression test in `tests/engine_demo/`.
-- Enable it by removing the DISABLED\_ prefix.
-- Run: `ctest --preset default-debug --output-on-failure -R <test_name>`
-- Report: test passes or fails, and why.
-
-### Phase 3: FIX
-
-- Propose the minimal fix that resolves the bug.
-- Cite which constitutional articles are satisfied.
-- Apply the fix using editFile.
-
-### Phase 4: VERIFY
-
-- Rerun the regression test.
-- Confirm it passes.
-- Run the full test suite to check for regressions.
-
-## Output format
-
-For each phase, output:
+> 🔧 **Block Setup** — confirm the mesh is installed and the baseline is green. Paste into
+> the **Agent** panel with `@logic-bug-orchestrator` selected:
 
 ```text
-## Phase N: <PHASE_NAME>
-**Action:** <what you did>
-**Result:** <what happened>
-**Constitutional compliance:** <articles checked>
+@logic-bug-orchestrator
+Self-check before the agent block: confirm you are loaded and report (a) which sub-agents you
+delegate to, (b) the four human-in-the-loop gates you stop at, and (c) that
+`ctest --preset default-debug` in output/ea-cpp-games/ is green. Do not fix anything.
 ```
-````
 
-## 1f. Invoking the Agent — BUG-004 (Non-determinism)
+> **Say:** "Instead of one monolithic agent doing everything, the workflow is a **mesh of four
+> agents plus shared reasoning instructions**. Each does one job — and the separation is the
+> safety story: the agents that _read_ the code can't _edit_ it."
+
+### The four real files (open each one)
+
+| Diagram box                 | File                                                     | Role / tools                                                                                              |
+| --------------------------- | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Orchestrator**            | `.github/agents/logic-bug-orchestrator.agent.md`         | Entry point. `read, search, edit, execute, todo, agent` — delegates, reasons, applies the fix.            |
+| **Code Analysis** sub-agent | `.github/agents/code-analysis.agent.md`                  | OBSERVE. **Read-only** (`read, search`) — traces decl → mutation → use.                                   |
+| **Test Runner** sub-agent   | `.github/agents/test-runner.agent.md`                    | REPRODUCE / VERIFY. `read, search, edit, execute` — un-`DISABLED_`s, builds the right preset, runs ctest. |
+| **Constitution Checker**    | `.github/agents/constitution-checker.agent.md`           | FIX gate. **Read-only** (`read, search`) — article-by-article audit.                                      |
+| **Reasoning Engine**        | `.github/instructions/reasoning-cot-tot.instructions.md` | CoT/ToT discipline the orchestrator runs in the FIX phase (not a separate agent).                         |
+
+> **Say:** "Three sub-agents, one orchestrator, one instructions file. Notice two of the
+> sub-agents have _no_ `edit` tool — `code-analysis` and `constitution-checker` physically
+> cannot change a file. Only the orchestrator and `test-runner` can, and only the orchestrator
+> applies the actual fix."
+
+### How the diagram becomes a mesh — the orchestrator frontmatter
+
+> **Do:** Open `.github/agents/logic-bug-orchestrator.agent.md` and read its frontmatter. The
+> two keys that turn a diagram into a runnable workflow are `agents:` (who it can delegate to)
+> and `handoffs:` (the pre-filled 🚦 gate buttons):
+
+```markdown
+---
+name: logic-bug-orchestrator
+tools: [read, search, edit, execute, todo, agent]
+agents: [code-analysis, test-runner, constitution-checker]
+argument-hint: "Resolve BUG-XXX — <one-line symptom>"
+handoffs:
+  - agent: code-analysis
+    prompt: "Analyze BUG-XXX: trace decl → mutation → use, report the root cause with file:line."
+    send: false # opens a review gate instead of auto-sending — this is Gate 1
+  - agent: test-runner
+    prompt: "Reproduce BUG-XXX: enable its DISABLED_ test, build the right preset, run it twice."
+    send: false
+  - agent: constitution-checker
+    prompt: "Audit the proposed fix article-by-article against specs/constitution.md."
+    send: false
+---
+```
+
+> **Say:** "`agents:` plus the `agent` tool is **delegation** — the orchestrator _calls_ a
+> sub-agent and quotes its report back. `handoffs:` with `send: false` is the **HITL gate** —
+> it pre-fills a prompt to the next agent but stops so a human can review and click. Delegation
+> is how work flows; handoffs are how _humans stay in control of the flow_."
+
+> **Watch for:** Learners conflating the two. Delegation = orchestrator → sub-agent (automatic,
+> quoted back). Handoff = a button a human approves. The four 🚦 gates in the demo were
+> handoffs.
+
+### Read the sub-agents and the reasoning engine
+
+> **Do:** Open the three sub-agent files and skim their bodies, then open the reasoning
+> instructions. Map each to what you saw in the BUG-002 / BUG-007 demos:
+>
+> - `code-analysis.agent.md` → the Phase-1 data-flow trace that named `float m_accumulator_seconds`.
+> - `test-runner.agent.md` → the Phase-2 reproduce that knew BUG-007 needs the `optimized` preset.
+> - `constitution-checker.agent.md` → the Gate-2 article audit that cleared Articles 1, 2, 5.
+> - `reasoning-cot-tot.instructions.md` → the Tree-of-Thought that weighed `-fwrapv` vs. a
+>   bigger guard vs. the unsigned type, and rejected the first two.
+
+> **Say:** "These aren't slideware boxes — they're the files that actually ran a minute ago.
+> That's the whole point of the session: the architecture diagram is _executable_."
+
+## 1f. Invoking the Orchestrator — BUG-004 (Non-determinism)
 
 ### Prompt
 
 ```text
-@logic-bug-planner Resolve BUG-004 — the constraint solver depends on hash-map
+@logic-bug-orchestrator Resolve BUG-004 — the constraint solver depends on hash-map
 iteration order, causing non-deterministic replay divergence.
 ```
+
+> The orchestrator delegates OBSERVE to `code-analysis`, REPRODUCE/VERIFY to `test-runner`,
+> and the FIX audit to `constitution-checker`, stopping at the four 🚦 gates. A representative
+> consolidated trace (sub-agent reports quoted back into the orchestrator's phases) looks like:
 
 > ⚠️ Model-drift note: Exact output may vary across Copilot model updates.
 > The structure and reasoning pattern should match.
@@ -631,14 +700,18 @@ Will run after fix is approved and applied:
 
 **Time:** 15 min
 
-### Step 1: Review the agent file
+### Step 1: Review the agent mesh
 
-> **Do:** Open the existing `.github/agents/logic-bug-planner.agent.md` and confirm its content matches the agent definition in 1e. (The file ships with the workspace — review and confirm it rather than recreating it.)
+> **Do:** Open the four agent files in `.github/agents/` (`logic-bug-orchestrator`,
+> `code-analysis`, `test-runner`, `constitution-checker`) plus
+> `.github/instructions/reasoning-cot-tot.instructions.md`, and confirm they match the mesh
+> described in 1e. (They ship with the workspace — review and confirm rather than recreating.)
+> Pay attention to the orchestrator's `agents:` and `handoffs:` keys.
 
 ### Step 2: Test with a simple bug
 
 ```text
-@logic-bug-planner Analyze BUG-006 — the frame_budget rolling window double-counts
+@logic-bug-orchestrator Analyze BUG-006 — the frame_budget rolling window double-counts
 on warm-up. Walk through all four phases.
 ```
 
@@ -697,7 +770,7 @@ double frame_budget::rolling_average() const noexcept {
 ## 1h. Extension — BUG-008 (Padding/memcmp)
 
 ```text
-@logic-bug-planner Resolve BUG-008 — snapshot_equals uses memcmp on a struct with
+@logic-bug-orchestrator Resolve BUG-008 — snapshot_equals uses memcmp on a struct with
 11 bytes of padding. Independently constructed snapshots with identical values may
 compare as unequal.
 ```
@@ -770,14 +843,15 @@ bool snapshot_equals(const replay_snapshot& a, const replay_snapshot& b) noexcep
 
 ## 1i. Model Tiers — Premium Lead, Cheaper Follow-Through
 
-> **Say:** "You just saw the full-power agentic resolver on a premium model. For the rest of
-> the workshop, the routine bug work runs on a **cheaper** model — same workflow, a fraction
-> of the cost."
+> **Say:** "You just saw the full agentic **mesh** — an orchestrator plus three sub-agents — on
+> a premium model. For the rest of the workshop, the routine bug work runs on a **cheaper**
+> model — same observe → reproduce → fix → verify workflow, a fraction of the cost."
 
-| Tier    | Agent                     | Model                | Use it for                                               |
-| ------- | ------------------------- | -------------------- | -------------------------------------------------------- |
-| Premium | `logic-bug-planner`       | Sonnet-class default | This Section 1 agentic lead — demos and net-new analysis |
-| Cheaper | `logic-bug-resolver-lite` | Claude Haiku 4.5     | Sections 3–5 bug work — the skill carries the rules      |
+| Tier        | Agent                     | Model                 | Use it for                                                                                                    |
+| ----------- | ------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Premium     | `logic-bug-orchestrator`  | Sonnet-class / picker | This Section 1 agentic lead — the orchestrator + sub-agent mesh; demos and net-new analysis                   |
+| Single-file | `logic-bug-planner`       | Sonnet-class default  | A consolidated _single-agent_ sample (no delegation) — handy reference for the one-file pattern, not the mesh |
+| Cheaper     | `logic-bug-resolver-lite` | Claude Haiku 4.5      | Sections 3–5 bug work — the skill carries the rules                                                           |
 
 > The cheaper `logic-bug-resolver-lite` agent and the `logic-bug-triage` skill it loads are
 > detailed in [Section 7](#section-7--new-copilot-capabilities-loops-skills--cheaper-models-static-guide-15-min).
@@ -963,7 +1037,7 @@ This enforces the constitutional Article 7 mandate: test-first workflow.
 > 💵 **Model tier:** Resolve this section's BUG-009 analysis with the cheaper
 > `logic-bug-resolver-lite` agent on **Claude Haiku 4.5** — the `logic-bug-triage` skill
 > supplies the constitution rules and false-positive map. Reserve the premium
-> `logic-bug-planner` for the Section 1 agentic lead. See
+> `logic-bug-orchestrator` for the Section 1 agentic lead. See
 > [Section 7](#section-7--new-copilot-capabilities-loops-skills--cheaper-models-static-guide-15-min).
 
 ## Learning Objectives — Section 3
@@ -1225,7 +1299,7 @@ that violate Articles 1-4 and require manual correction.
 
 > 💵 **Model tier:** Run the BUG-004 / BUG-008 / BUG-010 reasoning in this section on the
 > cheaper `logic-bug-resolver-lite` agent (**Claude Haiku 4.5**) — the `logic-bug-triage`
-> skill carries the hypotheses and constraints. The premium `logic-bug-planner` stays
+> skill carries the hypotheses and constraints. The premium `logic-bug-orchestrator` stays
 > reserved for the Section 1 lead. See
 > [Section 7](#section-7--new-copilot-capabilities-loops-skills--cheaper-models-static-guide-15-min).
 
@@ -1477,7 +1551,7 @@ Evaluate all hypotheses and converge on the root cause.
 
 > 💵 **Model tier:** The BUG-002 / BUG-007 gate walkthrough runs fine on the cheaper
 > `logic-bug-resolver-lite` agent (**Claude Haiku 4.5**) backed by the `logic-bug-triage`
-> skill. Premium `logic-bug-planner` reasoning is still fine here if you want to showcase
+> skill. Premium `logic-bug-orchestrator` reasoning is still fine here if you want to showcase
 > gate-level judgment live. See
 > [Section 7](#section-7--new-copilot-capabilities-loops-skills--cheaper-models-static-guide-15-min).
 
@@ -1488,10 +1562,10 @@ Evaluate all hypotheses and converge on the root cause.
 3. Distinguish false positives from real bugs at each gate.
 
 > 🔧 **Section Setup** — confirm a clean baseline before walking the four gates. Paste into the
-> **Agent** panel with `@logic-bug-planner` selected:
+> **Agent** panel with `@logic-bug-orchestrator` selected:
 
 ```text
-@logic-bug-planner
+@logic-bug-orchestrator
 Section 5 prep for output/ea-cpp-games/, analysis-only:
 1. Confirm ./reset_workshop.sh reports READY (run it if unsure).
 2. Confirm long_run_does_not_drift (BUG-002) is DISABLED_ in test_game_loop.cpp.
@@ -2006,7 +2080,7 @@ The constitution exists to prevent classes of bugs that are catastrophic in game
 > hands-on in 7c. Paste into the **Agent** panel:
 
 ```text
-@logic-bug-planner
+@logic-bug-resolver-lite
 Section 7 prep for output/ea-cpp-games/, analysis-only:
 1. Confirm ./reset_workshop.sh reports READY (run it if unsure).
 2. Confirm the sweep prompt exists: .github/prompts/logic-bug-sweep.prompt.md.
@@ -2043,7 +2117,8 @@ prompt restores every `DISABLED_` prefix it touched, so the tree stays clean —
 
 ### 7b — A minimized, skill-based agent on a cheaper model
 
-Section 1's `logic-bug-planner` agent is powerful but **heavy**: its `.agent.md` body is
+The consolidated single-file `logic-bug-planner` sample (the one-file contrast from 1e) is
+powerful but **heavy**: its `.agent.md` body is
 ~80 lines because it carries all the rules, the four-phase contract, and the ctest commands
 inline. Every invocation re-sends that context to a premium model.
 

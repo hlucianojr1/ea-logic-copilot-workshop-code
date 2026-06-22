@@ -11,7 +11,7 @@ surface competing hypotheses before committing to one.
 > 🔧 **Setup** — start from a clean baseline. Paste into the **Agent** panel:
 
 ```text
-@logic-bug-planner
+@logic-bug-resolver-lite
 Confirm output/ea-cpp-games/ is clean for BUG-008: ctest --preset default-debug is green and
 padding_does_not_affect_comparison is still DISABLED_. Run ./reset_workshop.sh if not. Do not fix.
 ```

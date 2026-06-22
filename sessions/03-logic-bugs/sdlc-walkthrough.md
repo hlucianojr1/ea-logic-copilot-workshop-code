@@ -13,7 +13,7 @@
 flowchart LR
     A[Bug report\nfixtures/bug-reports/] --> B[GitHub issue]
     B --> C[feat/fix branch]
-    C --> D["@logic-bug-planner\nOBSERVE → REPRODUCE → FIX → VERIFY"]
+    C --> D["@logic-bug-orchestrator\n→ code-analysis · test-runner · constitution-checker\nOBSERVE → REPRODUCE → FIX → VERIFY"]
     D --> E[PR + constitutional\nreview rubric]
     E --> F[CI: ctest +\nvalidate gates]
     F --> G[Merge]
@@ -75,17 +75,25 @@ diff trace-before.csv trace-after.csv
 A determinism fix shows up as _identical_ traces across repeated post-fix runs; a drift
 fix shows up as the accumulator column staying bounded. Attach both CSVs to the PR.
 
-## Step 4 — Agent-driven fix with HITL gates
+## Step 4 — Orchestrator-driven fix with HITL gates
 
-Invoke the resolver agent (see
-[.github/agents/logic-bug-planner.agent.md](../../.github/agents/logic-bug-planner.agent.md)):
+Invoke the orchestrator (see
+[.github/agents/logic-bug-orchestrator.agent.md](../../.github/agents/logic-bug-orchestrator.agent.md)).
+It delegates to three sub-agents —
+[code-analysis](../../.github/agents/code-analysis.agent.md) (OBSERVE),
+[test-runner](../../.github/agents/test-runner.agent.md) (REPRODUCE / VERIFY), and
+[constitution-checker](../../.github/agents/constitution-checker.agent.md) (FIX audit) —
+and runs the CoT/ToT discipline from
+[reasoning-cot-tot.instructions.md](../../.github/instructions/reasoning-cot-tot.instructions.md):
 
 ```text
-@logic-bug-planner Resolve BUG-002. Bug report: fixtures/bug-reports/BUG-002.md.
-Start with OBSERVE.
+@logic-bug-orchestrator Resolve BUG-002 — float accumulator drift.
+Bug report: fixtures/bug-reports/BUG-002.md. Start with OBSERVE.
 ```
 
-You are the gate-keeper at four points (training Section 6):
+Each gate surfaces as a **handoff button** the orchestrator emits with `send: false`,
+so nothing advances to the next phase until you click. You are the gate-keeper at four
+points (training Section 6):
 
 | Gate | Question                   | You approve only if…                                              |
 | ---- | -------------------------- | ----------------------------------------------------------------- |

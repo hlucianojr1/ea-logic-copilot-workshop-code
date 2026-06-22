@@ -258,7 +258,8 @@ depends on the order bodies were inserted.
 
 - [logic-bug-workshop-training.md](logic-bug-workshop-training.md) — the full advanced set
   (BUG-004, 007, 008, 009, 010), plus Chain-of-Thought / Tree-of-Thought theory and the
-  `logic-bug-planner` build-it-yourself agent.
+  end-to-end agentic mesh: `@logic-bug-orchestrator` delegating to the `code-analysis`,
+  `test-runner`, and `constitution-checker` sub-agents across four HITL gates.
 - [sdlc-walkthrough.md](sdlc-walkthrough.md) — take one bug through the full AI SDLC loop:
   issue → agent fix → PR → CI gate → merge.
 - [qa-track.md](qa-track.md) — the QA-engineer track: test-plan authoring, triage rubric,
