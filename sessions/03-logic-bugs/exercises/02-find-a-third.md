@@ -11,7 +11,7 @@ non-determinism) and dismiss the **false positive** (FP-002, sentinel iteration)
 > 🔧 **Setup** — start from a clean baseline. Paste into the **Agent** panel:
 
 ```text
-@logic-bug-planner
+@logic-bug-resolver-lite
 Confirm output/ea-cpp-games/ is clean for the constraint solver: ctest --preset default-debug
 is green and solve_is_deterministic_across_construction_orders is still DISABLED_.
 Run ./reset_workshop.sh if not. Do not fix anything.

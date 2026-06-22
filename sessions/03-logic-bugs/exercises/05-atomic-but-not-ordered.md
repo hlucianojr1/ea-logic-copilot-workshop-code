@@ -13,7 +13,7 @@ reproduction tool.
 > Paste into the **Agent** panel:
 
 ```text
-@logic-bug-planner
+@logic-bug-resolver-lite
 Confirm output/ea-cpp-games/ is clean for BUG-009: ctest --preset default-debug is green and
 consumer_observes_complete_payload is still DISABLED_. Run ./reset_workshop.sh if not. Do not fix.
 ```
@@ -58,7 +58,7 @@ consumer_observes_complete_payload is still DISABLED_. Run ./reset_workshop.sh i
    Claim (1) is **FP-003** — `m_ready` is `std::atomic<bool>`; atomicity was never the
    problem. Dismiss it explicitly. Claim (2) is the real defect.
 
-3. Invoke `@logic-bug-planner` for the fix. Gate the FIX phase on the agent naming the
+3. Invoke `@logic-bug-orchestrator` for the fix. Gate the FIX phase on the agent naming the
    exact pair: `store(..., std::memory_order_release)` in `publish()` and
    `load(std::memory_order_acquire)` in `try_consume()` — reject `seq_cst`-everywhere
    as an overcorrection (Article 6: lockless hot path).

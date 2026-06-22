@@ -33,6 +33,27 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- **Session 03 resolver is now a true agentic mesh (orchestrator → sub-agents → HITL gates).**
+  Replaced the single monolithic `logic-bug-planner` agent with an end-to-end **mesh** so the
+  session teaches genuine multi-agent orchestration, not a one-file workflow. New files:
+  `.github/agents/logic-bug-orchestrator.agent.md` (entry point — `agents:` delegation +
+  `handoffs: send:false` 🚦 gate buttons; applies the fix post-Gate-4),
+  `.github/agents/code-analysis.agent.md` (read-only OBSERVE data-flow tracer),
+  `.github/agents/test-runner.agent.md` (REPRODUCE/VERIFY — un-`DISABLED_`s + runs the ctest
+  preset), `.github/agents/constitution-checker.agent.md` (read-only FIX-phase 8-article gate),
+  and `.github/instructions/reasoning-cot-tot.instructions.md` (shared Chain-of-Thought /
+  Tree-of-Thought reasoning engine, auto-applied to the orchestrator). Propagated
+  `@logic-bug-orchestrator` across every demo/fix invocation in
+  `sessions/03-logic-bugs/logic-bug-workshop-training.md` and `sdlc-walkthrough.md`, fix
+  invocations in exercises `03`/`05` (baseline "confirm clean" blocks route to
+  `@logic-bug-resolver-lite`; `02`/`04`/`06` fix via the Edit tab), the learner-guide
+  "Going further" pointer, a new mesh slide in `slides.outline.md` (now 13 slides), and a
+  `> **Say:**` reveal plus stretch-goal in `facilitator-script.md`. Reframed
+  `logic-bug-planner` as the **single-agent contrast sample** (training §1i/§7b minimization
+  comparison only). Updated `docs/session-03-logic-bugs-runbook.md` (agents catalog + gap log)
+  and `docs/session-03-training-verification-checklist.md` (Section 4 now verifies the mesh
+  files and `@logic-bug-orchestrator` invocations).
+
 - **Session 03 training-guide reorder — agentic resolver now leads.** Merged the old Section 1
   (live demo) and old Section 4 (custom-agent build) into a single **Section 1 — The Agentic
   Logic Bug Resolver** (~50 min, subsections 1a–1i: architecture → reasoning techniques → live

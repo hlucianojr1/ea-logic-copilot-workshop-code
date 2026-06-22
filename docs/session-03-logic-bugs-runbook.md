@@ -15,7 +15,7 @@ state it is in.
 | [logic-bug-workshop-training.md](../sessions/03-logic-bugs/logic-bug-workshop-training.md) | 150–180 min deep-dive: CoT/ToT/HITL, context layers, all bugs   |
 | [sdlc-walkthrough.md](../sessions/03-logic-bugs/sdlc-walkthrough.md)                       | End-to-end AI SDLC loop: issue → agent fix → PR → CI → merge    |
 | [qa-track.md](../sessions/03-logic-bugs/qa-track.md)                                       | QA-engineer track: test plans, triage rubric, sign-off, metrics |
-| [slides.outline.md](../sessions/03-logic-bugs/slides.outline.md)                           | 10-slide outline                                                |
+| [slides.outline.md](../sessions/03-logic-bugs/slides.outline.md)                           | 13-slide outline                                                |
 | [pre-work-email.md](../sessions/03-logic-bugs/pre-work-email.md)                           | T−2 day learner prep                                            |
 | [retro-survey.md](../sessions/03-logic-bugs/retro-survey.md)                               | End-of-session micro-survey                                     |
 | [fallback-screenshots/](../sessions/03-logic-bugs/fallback-screenshots/README.md)          | Demo-failure recovery captures + checklist                      |
@@ -33,10 +33,21 @@ state it is in.
 
 ### Agents (`.github/agents/`)
 
-| Agent                                                                      | Role                                                           |
-| -------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| [logic-bug-planner.agent.md](../.github/agents/logic-bug-planner.agent.md) | Four-phase resolver with HITL gates (facilitator + SDLC demos) |
-| [logic-bug-tutor.agent.md](../.github/agents/logic-bug-tutor.agent.md)     | Hint-based self-paced tutor (learner-guide path)               |
+The resolver is an **agentic mesh**: an orchestrator entry point delegates to three
+single-responsibility sub-agents and reasons with shared CoT/ToT instructions. The
+reasoning engine is shared via
+[reasoning-cot-tot.instructions.md](../.github/instructions/reasoning-cot-tot.instructions.md),
+auto-applied to the orchestrator.
+
+| Agent                                                                                  | Role                                                                                                      |
+| -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [logic-bug-orchestrator.agent.md](../.github/agents/logic-bug-orchestrator.agent.md)   | **Entry point** — drives the mesh; delegates to the three sub-agents across four HITL gates (live + SDLC) |
+| [code-analysis.agent.md](../.github/agents/code-analysis.agent.md)                     | Read-only OBSERVE-phase data-flow tracer (sub-agent)                                                      |
+| [test-runner.agent.md](../.github/agents/test-runner.agent.md)                         | REPRODUCE / VERIFY — enables the `DISABLED_` test, runs the ctest preset twice (sub-agent)                |
+| [constitution-checker.agent.md](../.github/agents/constitution-checker.agent.md)       | Read-only FIX-phase 8-article quality gate (sub-agent)                                                    |
+| [logic-bug-resolver-lite.agent.md](../.github/agents/logic-bug-resolver-lite.agent.md) | Haiku-tier minimized analyst — routine triage / baseline "confirm clean" checks                           |
+| [logic-bug-planner.agent.md](../.github/agents/logic-bug-planner.agent.md)             | Consolidated single-agent sample (no delegation) — one-file contrast, not the mesh                        |
+| [logic-bug-tutor.agent.md](../.github/agents/logic-bug-tutor.agent.md)                 | Hint-based self-paced tutor (learner-guide path)                                                          |
 
 ### Demo workspace (`output/ea-cpp-games/`)
 
@@ -50,14 +61,15 @@ state it is in.
 
 ## Gap-remediation log
 
-| Date       | Gap                                                                  | Remediation                                                          |
-| ---------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| 2026-06-12 | `workshop-guide-advanced.md` referenced but missing                  | Links repointed at `logic-bug-workshop-training.md`                  |
-| 2026-06-12 | `logic-bug-tutor` agent referenced by learner guide but absent       | Created `.github/agents/logic-bug-tutor.agent.md`                    |
-| 2026-06-12 | `logic-bug-planner` only described inline in training Section 4a     | Created `.github/agents/logic-bug-planner.agent.md`                  |
-| 2026-06-12 | `fallback-screenshots/` referenced by facilitator script but missing | Created folder + capture checklist README                            |
-| 2026-06-12 | BUG-007 guard elision not reproducible (Debug-only test preset)      | Added `optimized` (RelWithDebInfo, -O2) configure/build/test presets |
-| 2026-06-12 | BUG-009 data race not demonstrable                                   | Added `tsan` (ThreadSanitizer) configure/build/test presets          |
-| 2026-06-12 | BUG-007/008/009/010 had no hands-on exercises                        | Added exercises 03–06                                                |
-| 2026-06-12 | No end-to-end AI SDLC loop; worktree-mcp and sandbox unused          | Added `sdlc-walkthrough.md` (issue → PR → CI), wired both assets     |
-| 2026-06-12 | No QA-engineer track                                                 | Added `qa-track.md` + dual-track markers in facilitator script       |
+| Date       | Gap                                                                  | Remediation                                                                                                                                                                                                                    |
+| ---------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-06-12 | `workshop-guide-advanced.md` referenced but missing                  | Links repointed at `logic-bug-workshop-training.md`                                                                                                                                                                            |
+| 2026-06-12 | `logic-bug-tutor` agent referenced by learner guide but absent       | Created `.github/agents/logic-bug-tutor.agent.md`                                                                                                                                                                              |
+| 2026-06-12 | `logic-bug-planner` only described inline in training Section 4a     | Created `.github/agents/logic-bug-planner.agent.md`                                                                                                                                                                            |
+| 2026-06-12 | `fallback-screenshots/` referenced by facilitator script but missing | Created folder + capture checklist README                                                                                                                                                                                      |
+| 2026-06-12 | BUG-007 guard elision not reproducible (Debug-only test preset)      | Added `optimized` (RelWithDebInfo, -O2) configure/build/test presets                                                                                                                                                           |
+| 2026-06-12 | BUG-009 data race not demonstrable                                   | Added `tsan` (ThreadSanitizer) configure/build/test presets                                                                                                                                                                    |
+| 2026-06-12 | BUG-007/008/009/010 had no hands-on exercises                        | Added exercises 03–06                                                                                                                                                                                                          |
+| 2026-06-12 | No end-to-end AI SDLC loop; worktree-mcp and sandbox unused          | Added `sdlc-walkthrough.md` (issue → PR → CI), wired both assets                                                                                                                                                               |
+| 2026-06-12 | No QA-engineer track                                                 | Added `qa-track.md` + dual-track markers in facilitator script                                                                                                                                                                 |
+| 2026-06-13 | Resolver was a single `logic-bug-planner` agent (no true delegation) | Built the agentic mesh: `logic-bug-orchestrator` + `code-analysis` / `test-runner` / `constitution-checker` sub-agents + `reasoning-cot-tot.instructions.md`; reframed `logic-bug-planner` as the single-agent contrast sample |

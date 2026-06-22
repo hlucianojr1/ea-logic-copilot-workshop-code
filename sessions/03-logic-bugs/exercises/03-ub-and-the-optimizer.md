@@ -11,7 +11,7 @@ optimizer at `-O2` — and experience why Debug-only testing gives false confide
 > the **Agent** panel:
 
 ```text
-@logic-bug-planner
+@logic-bug-resolver-lite
 Confirm output/ea-cpp-games/ is clean for BUG-007: ctest --preset default-debug is green and
 overflow_guard_not_elided is still DISABLED_. Run ./reset_workshop.sh if not. Do not fix anything.
 ```
@@ -51,7 +51,7 @@ overflow_guard_not_elided is still DISABLED_. Run ./reset_workshop.sh if not. Do
    fix yet.
    ```
 
-4. Invoke `@logic-bug-planner` to drive the fix through its four phases. Approve the
+4. Invoke `@logic-bug-orchestrator` to drive the fix through its four phases. Approve the
    FIX phase only after the agent states the UB-free guard form (check against
    overflow _before_ adding, e.g. comparing against
    `std::numeric_limits<std::int64_t>::max() - delta`).

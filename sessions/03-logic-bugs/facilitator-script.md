@@ -76,6 +76,8 @@ Constitutional articles 1, 2, 5 must hold.
 > **Facilitator note (QA track):** QA learners record Gate 4 (fix minimal & safe) —
 > `git diff --stat` should show exactly two files: the header and the source.
 
+> **Say:** "Everything you just did by hand — observe, reproduce, audit the constitution, then fix — the `@logic-bug-orchestrator` agent runs as a mesh: it delegates to `code-analysis`, `test-runner`, and `constitution-checker`, reasons with Chain-of-Thought / Tree-of-Thought, and emits a handoff button at each of the four HITL gates you just operated. Same gates, now agent-driven — you stay the approver."
+
 ## Block 2: BUG-006 — off-by-one in a rolling window (0:30 – 0:50)
 
 > **Say:** "Off-by-one bugs hide in plain sight. The trick is to ask Copilot to enumerate slot states, not infer them."
@@ -127,6 +129,9 @@ DISABLED_first_sample_is_not_double_counted_on_warmup.
   PR evidence.
 - Self-paced follow-ups: [exercises 03–06](exercises/) cover BUG-007/008/009/010 with
   the `optimized` and `tsan` presets.
+- Re-run BUG-002 the **agentic** way: invoke `@logic-bug-orchestrator` and let it drive
+  observe → reproduce → fix → verify, delegating to `code-analysis`, `test-runner`, and
+  `constitution-checker`. Click through the four handoff gates instead of switching tabs.
 
 ## Recovery script
 

@@ -43,7 +43,7 @@ TEST(ElapsedTimer, MultipleLargeTicks) {
 //
 // Expected (correct): timer saturates at or near INT32_MAX.
 // Actual (buggy at -O2): timer wraps to a large negative value.
-TEST(ElapsedTimer, overflow_guard_not_elided) {
+TEST(ElapsedTimer, DISABLED_overflow_guard_not_elided) {
     elapsed_timer timer;
 
     // Accumulate to near INT32_MAX.
