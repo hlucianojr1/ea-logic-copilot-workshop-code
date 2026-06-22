@@ -615,18 +615,18 @@ argument-hint: "Resolve BUG-XXX — <one-line symptom>"
 > **Say:** "These aren't slideware boxes — they're the files that actually ran a minute ago.
 > That's the whole point of the session: the architecture diagram is _executable_."
 
-## 1f. Invoking the Orchestrator — BUG-004 (Non-determinism)
+## 1f. Invoking the Logic Bug Planner — BUG-004 (Non-determinism)
 
 ### Prompt
 
 ```text
-@logic-bug-orchestrator Resolve BUG-004 — the constraint solver depends on hash-map
+@logic-bug-planner Resolve BUG-004 — the constraint solver depends on hash-map
 iteration order, causing non-deterministic replay divergence.
 ```
 
-> The orchestrator delegates OBSERVE to `code-analysis`, REPRODUCE/VERIFY to `test-runner`,
-> and the FIX audit to `constitution-checker`, stopping at the four 🚦 gates. A representative
-> consolidated trace (sub-agent reports quoted back into the orchestrator's phases) looks like:
+> The planner resolves the bug as a single agent — no sub-agent delegation. It follows the
+> four-phase workflow from `logic-bug-planner.agent.md` and stops for human approval before
+> editing any file. Representative output looks like:
 
 > ⚠️ Model-drift note: Exact output may vary across Copilot model updates.
 > The structure and reasoning pattern should match.
@@ -692,6 +692,8 @@ Will run after fix is approved and applied:
 - Full suite: `ctest --preset default-debug --output-on-failure`
 ```
 
+> 💡 **Planner vs. orchestrator:** The planner uses the `## Phase N:` format as a single agent. Running `@logic-bug-orchestrator` for the same bug instead produces `🚦 GATE N` blocks with sub-agent reports quoted back (Code Analysis Report, Test Report, Constitution Compliance Report). See BUG-002 and BUG-007 in sections 1b/1c for canonical orchestrator output.
+
 ## 1g. Exercise: Build the Agent from Scratch
 
 **Time:** 15 min
@@ -707,9 +709,12 @@ Will run after fix is approved and applied:
 ### Step 2: Test with a simple bug
 
 ```text
-@logic-bug-orchestrator Analyze BUG-006 — the frame_budget rolling window double-counts
+@logic-bug-resolver-lite Resolve BUG-006 — the frame_budget rolling window double-counts
 on warm-up. Walk through all four phases.
 ```
+
+> 💵 **Model tier:** This exercise uses `logic-bug-resolver-lite` on **Claude Haiku 4.5** — the
+> `logic-bug-triage` skill supplies the rules so the cheaper model performs reliably.
 
 > ⚠️ Model-drift note: Exact output may vary across Copilot model updates.
 > The structure and reasoning pattern should match.
